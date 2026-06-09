@@ -15,7 +15,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
 
   // Estado del Deslizador Visual
   const [selectedTierIndex, setSelectedTierIndex] = useState(Math.max(0, currentTierIndex));
-  
+
   // Hacer que el slider salte automáticamente al nuevo nivel cuando el usuario lo alcance
   useEffect(() => {
     setSelectedTierIndex(Math.max(0, currentTierIndex));
@@ -56,7 +56,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
   // Handler para el botón de reclamar
   const handleClaimReward = (missionId, amount) => {
     if (claimedMissions[missionId]) return;
-    
+
     // 1. Marcar como reclamado
     setClaimedMissions(prev => ({ ...prev, [missionId]: true }));
 
@@ -79,9 +79,9 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
       setFloatingCoins({ missionId: null, coins: [] });
     }, 1000);
   };
-  
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       className="h-full w-full bg-[#050505] flex flex-col text-white font-sans overflow-y-auto no-scrollbar pb-24 relative"
@@ -93,7 +93,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
       </div>
 
       <div className="relative z-10 flex flex-col p-5 space-y-6">
-        
+
         {/* HEADER & PERFIL GLASSMORPHISM */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-5 shadow-2xl mt-4">
           <div className="flex justify-between items-start mb-4">
@@ -130,7 +130,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
               <span className="text-cyan-400">{totalGiftsSent.toLocaleString()} / {maxExp.toLocaleString()} pts</span>
             </div>
             <div className="w-full h-2.5 bg-black/50 rounded-full overflow-hidden border border-white/5">
-              <motion.div 
+              <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPct}%` }}
                 className={`h-full bg-gradient-to-r ${artifact.colors} rounded-full relative shadow-[0_0_10px_rgba(255,255,255,0.1)]`}
@@ -147,7 +147,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
               <div className="flex items-center space-x-1.5">
                 <Coins size={18} className="text-yellow-400" />
                 {/* Saldo animado al cambiar */}
-                <motion.span 
+                <motion.span
                   key={balance}
                   initial={{ scale: 1.5, color: '#fcd34d' }} // Brillo amarillo inicial al sumar
                   animate={{ scale: 1, color: '#ffffff' }} // Vuelve a blanco
@@ -158,7 +158,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
                 </motion.span>
               </div>
             </div>
-            <button 
+            <button
               onClick={onOpenYape}
               className="relative z-10 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-sm font-bold py-2.5 px-4 rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all active:scale-95 flex items-center space-x-2"
             >
@@ -173,7 +173,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
             ======================================================== */}
         <div className="mb-2">
           {/* Timeline Icons Scroll */}
-          <div 
+          <div
             ref={sliderRef}
             className={`flex items-center overflow-x-auto no-scrollbar py-4 px-1 space-x-3 mb-2 ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'}`}
             onMouseDown={handleMouseDown}
@@ -185,9 +185,8 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
               <React.Fragment key={tier.id}>
                 <button
                   onClick={() => { if (!dragged) setSelectedTierIndex(idx); }}
-                  className={`relative flex-shrink-0 transition-all duration-300 ${
-                    selectedTierIndex === idx ? 'scale-110 opacity-100 z-10' : 'scale-90 opacity-40 hover:opacity-80'
-                  }`}
+                  className={`relative flex-shrink-0 transition-all duration-300 ${selectedTierIndex === idx ? 'scale-110 opacity-100 z-10' : 'scale-90 opacity-40 hover:opacity-80'
+                    } ${totalGiftsSent >= tier.unlockPoints ? '' : 'grayscale opacity-50'}`}
                 >
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${tier.colors} flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(255,255,255,0.1)] border-2 overflow-hidden ${selectedTierIndex === idx ? tier.border : 'border-transparent'}`}>
                     {tier.image ? (
@@ -205,45 +204,47 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
           </div>
 
           {/* Big Card del Nivel Seleccionado */}
-          <div className={`w-full rounded-3xl p-6 relative overflow-hidden bg-gradient-to-br ${selectedTier.colors} transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.2)] border ${selectedTier.border}`}>
-            
+          <div className={`w-full min-h-[240px] flex flex-col justify-between rounded-3xl p-6 relative overflow-hidden bg-gradient-to-br ${selectedTier.colors} transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.2)] border ${selectedTier.border} ${isReached ? '' : 'grayscale'}`}>
+
             {/* 1. Fondo Oscuro Base */}
             <div className="absolute inset-0 bg-black/40 z-0"></div>
 
             {/* 2. Escenario a Pantalla Completa */}
             {selectedTier.image && (
               <div className="absolute inset-0 z-0">
-                <img src={selectedTier.image} alt="scenario" className="w-full h-full object-cover object-right mix-blend-lighten opacity-90" />
+                <img src={selectedTier.image} alt="scenario" className="w-full h-full object-cover object-center mix-blend-lighten opacity-90" />
               </div>
             )}
-            
-            {/* 3. Gradiente oscuro protector para el texto a la izquierda */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent z-0 pointer-events-none"></div>
-            
-            {/* Contenido Frontal */}
-            <div className="relative z-10 flex justify-between items-center min-h-[96px]">
-              <div>
-                <h3 className="text-6xl font-black italic tracking-tighter drop-shadow-lg text-white">{selectedTier.label}</h3>
-                <p className="text-sm font-bold text-white/80 tracking-wide mt-1 drop-shadow-md">{selectedTier.range}</p>
+
+            {/* 3. Gradientes protectores para el texto (arriba y abajo) */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 z-0 pointer-events-none"></div>
+
+            {/* Top Section: Puntos Requeridos */}
+            <div className="relative z-10 flex justify-between items-start">
+              <div className="pt-2">
+                <p className="text-sm sm:text-base font-bold text-white/80 tracking-wide drop-shadow-md">
+                  {selectedTier.range}
+                </p>
               </div>
-              
-              {/* Fallback a emoji si no hay imagen (niveles altos pendientes) */}
+
+              {/* Fallback a emoji si no hay imagen */}
               {!selectedTier.image && (
-                <div className="w-24 h-24 flex items-center justify-center text-7xl drop-shadow-[0_0_25px_rgba(255,255,255,0.6)]">
+                <div className="w-20 h-20 flex items-center justify-center text-6xl drop-shadow-[0_0_25px_rgba(255,255,255,0.6)]">
                   {selectedTier.icon}
                 </div>
               )}
             </div>
-            
-            <div className="relative z-10 mt-6 pt-5 border-t border-white/20">
+
+            {/* Footer de la tarjeta con Estado */}
+            <div className="relative z-10 mt-auto pt-4 border-t border-white/20 text-center sm:text-left">
               <p className="font-bold text-sm text-white/90 drop-shadow-md">
-                {isReached ? '¡Felicitaciones por alcanzar este nivel!' : 'Aún no alcanzaste este nivel de donador.'}
+                {isReached ? '¡Disfrutando de los beneficios épicos!' : 'Aún no alcanzaste este nivel de donador.'}
               </p>
             </div>
           </div>
 
           {/* Recompensas y Beneficios Section (Bajo el card) */}
-          <div className="mt-4 bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div className={`mt-4 bg-white/5 border border-white/10 rounded-2xl p-4 transition-all duration-500 ${isReached ? '' : 'grayscale opacity-60 pointer-events-none'}`}>
             <div className="flex justify-between items-center mb-4">
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center">
                 <Gift size={14} className="mr-1.5 text-cyan-400" />
@@ -295,7 +296,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
           </h3>
 
           <div className="space-y-4">
-            
+
             {[
               { id: 'gift_5k', target: 5000, reward: 500, title: 'Completa 5k en regalos' },
               { id: 'gift_10k', target: 10000, reward: 1000, title: 'Completa 10k en regalos' },
@@ -304,14 +305,14 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
               const isComplete = totalGiftsSent >= mission.target;
               const isClaimed = claimedMissions[mission.id];
               const remaining = Math.max(0, mission.target - totalGiftsSent);
-              
+
               return (
                 <div key={mission.id} className={`bg-[#111111] border-2 ${isClaimed ? 'border-green-500/30' : isComplete ? 'border-cyan-500/40' : 'border-[#222]'} rounded-2xl p-5 relative overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.05)] transition-colors duration-500 group hover:border-gray-700`}>
                   {/* Resplandor de completado */}
                   {(isComplete || isClaimed) && (
                     <div className={`absolute top-0 right-0 w-32 h-32 ${isClaimed ? 'bg-green-500/10' : 'bg-cyan-500/10'} blur-2xl rounded-full transition-colors duration-500`}></div>
                   )}
-                  
+
                   <div className="text-center mb-6 mt-2 relative z-10">
                     <h4 className="text-lg font-black text-white">{mission.title}</h4>
                     <div className="text-xs text-gray-400 mt-1 font-bold">Progreso: {totalGiftsSent.toLocaleString()} / {mission.target.toLocaleString()}</div>
@@ -321,7 +322,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
                       <Coins size={16} />
                       <span className="font-bold text-sm">Recompensa {mission.reward}</span>
                     </div>
-                    
+
                     <div className="relative">
                       {isClaimed ? (
                         <div className="bg-green-500/20 text-green-400 px-4 py-2 rounded-xl font-bold text-sm border border-green-500/30 flex items-center space-x-1 shadow-inner relative z-20">
@@ -329,7 +330,7 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
                           Reclamado
                         </div>
                       ) : isComplete ? (
-                        <button 
+                        <button
                           onClick={() => handleClaimReward(mission.id, mission.reward)}
                           className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all active:scale-95 flex items-center space-x-1 relative z-20"
                         >
@@ -347,16 +348,16 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
                           <motion.div
                             key={coin.id}
                             initial={{ opacity: 1, scale: 0.2, y: 0, x: 0 }}
-                            animate={{ 
-                              opacity: 0, 
-                              y: coin.yOffset, 
-                              x: coin.xOffset, 
-                              scale: 1 
+                            animate={{
+                              opacity: 0,
+                              y: coin.yOffset,
+                              x: coin.xOffset,
+                              scale: 1
                             }}
-                            transition={{ 
-                              duration: 0.6, 
+                            transition={{
+                              duration: 0.6,
                               delay: coin.delay,
-                              ease: "easeOut" 
+                              ease: "easeOut"
                             }}
                             className="absolute top-0 left-1/2 pointer-events-none z-50"
                             style={{ marginLeft: '-10px' }}
