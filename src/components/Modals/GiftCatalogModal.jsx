@@ -14,7 +14,7 @@ const GIFTS = [
   { id: 'cafe', name: 'Café', emoji: '☕', price: 10 },
   { id: 'dona', name: 'Dona', emoji: '🍩', price: 10 },
   { id: 'microfono', name: 'Micrófono', emoji: '🎤', price: 10 },
-  
+
   // Medios (20 - 99)
   { id: 'oso', name: 'Oso', emoji: '🧸', price: 20 },
   { id: 'mando', name: 'Mando', emoji: '🎮', price: 50 },
@@ -42,7 +42,8 @@ const GIFTS = [
   { id: 'ferrari', name: 'Ferrari', emoji: '🏎️', price: 5000, type: 'premium' },
   { id: 'ovni', name: 'OVNI', emoji: '🛸', price: 10000, type: 'premium' },
   { id: 'leon', name: 'LEÓN SUPREMO', emoji: '🦁', price: 29999, type: 'premium' },
-  { id: 'dragon', name: 'DRAGÓN GALÁCTICO', emoji: '🐉', price: 50000, type: 'premium' }
+  { id: 'dragon', name: 'DRAGÓN GALÁCTICO', emoji: '🐉', price: 50000, type: 'premium' },
+  { id: 'caballero', name: 'CABALLERO CELESTIAL', image: '/images/tiers/exclusive/caballero_alado.png', video: '/exclusive/angel_video.mp4', price: 99999, type: 'premium', isEpic: true }
 ];
 
 export default function GiftCatalogModal({ isOpen, onClose, onSendGift, onOpenYape, balance }) {
@@ -50,7 +51,7 @@ export default function GiftCatalogModal({ isOpen, onClose, onSendGift, onOpenYa
     <AnimatePresence>
       {isOpen && (
         <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-sm pointer-events-auto">
-          <motion.div 
+          <motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -61,29 +62,31 @@ export default function GiftCatalogModal({ isOpen, onClose, onSendGift, onOpenYa
               <h3 className="text-white font-bold text-lg">Catálogo de Regalos</h3>
               <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors"><X size={24} /></button>
             </div>
-            
+
             <div className="flex px-4 py-2 space-x-4 border-b border-gray-800 overflow-x-auto no-scrollbar">
               <button className="text-pink-500 font-bold border-b-2 border-pink-500 pb-1 text-sm whitespace-nowrap">🔥 Populares</button>
               <button className="text-gray-400 font-medium text-sm whitespace-nowrap hover:text-gray-200 transition-colors">✨ Animados Premium</button>
               <button className="text-gray-400 font-medium text-sm whitespace-nowrap hover:text-gray-200 transition-colors">🚀 Exclusivos</button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-4 grid grid-cols-4 gap-4 no-scrollbar pb-10">
               {GIFTS.map((gift) => (
                 gift.type === 'premium' ? (
-                  <button 
+                  <button
                     key={gift.id}
-                    onClick={() => onSendGift('premium', gift.price, `${gift.emoji} ${gift.name}`)} 
-                    className="flex flex-col items-center justify-center cursor-pointer bg-gradient-to-b from-purple-900/50 to-transparent p-2 rounded-xl border border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.3)] col-span-2 active:scale-[0.98] transition hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] group"
+                    onClick={() => onSendGift(gift)}
+                    className={`flex flex-col items-center justify-center cursor-pointer p-2 rounded-xl border col-span-2 active:scale-[0.98] transition group ${gift.isEpic ? 'bg-gradient-to-b from-yellow-900/50 to-transparent border-yellow-500/50 shadow-[0_0_20px_rgba(250,204,21,0.4)] hover:shadow-[0_0_25px_rgba(250,204,21,0.6)]' : 'bg-gradient-to-b from-purple-900/50 to-transparent border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_20px_rgba(168,85,247,0.5)]'}`}
                   >
-                    <div className="text-4xl mb-1 animate-pulse">{gift.emoji}</div>
-                    <span className="text-[10px] text-purple-300 font-bold truncate w-full text-center px-1">{gift.name}</span>
+                    <div className="text-4xl mb-1 animate-pulse h-10 flex items-center justify-center">
+                      {gift.image ? <img src={gift.image} alt={gift.name} className="h-full object-contain rounded-md drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" /> : gift.emoji}
+                    </div>
+                    <span className={`text-[10px] font-bold truncate w-full text-center px-1 ${gift.isEpic ? 'text-yellow-300' : 'text-purple-300'}`}>{gift.name}</span>
                     <span className="text-yellow-400 text-xs font-bold mt-1">{gift.price.toLocaleString()}</span>
                   </button>
                 ) : (
-                  <button 
+                  <button
                     key={gift.id}
-                    onClick={() => onSendGift('normal', gift.price, gift.emoji)} 
+                    onClick={() => onSendGift(gift)}
                     className="flex flex-col items-center justify-center cursor-pointer hover:bg-gray-800 p-2 rounded-xl transition active:scale-95 group"
                   >
                     <div className="text-4xl mb-1 group-hover:scale-110 transition-transform">{gift.emoji}</div>
@@ -92,7 +95,7 @@ export default function GiftCatalogModal({ isOpen, onClose, onSendGift, onOpenYa
                 )
               ))}
             </div>
-            
+
             <div className="p-4 bg-gray-900 border-t border-gray-800 flex justify-between items-center">
               <div className="flex items-center">
                 <span className="text-gray-400 text-sm mr-2">Saldo:</span>

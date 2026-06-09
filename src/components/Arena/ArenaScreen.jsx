@@ -3,6 +3,7 @@ import { Eye, Gift, Share2, MoreHorizontal, AlertTriangle, Plus, Send } from 'lu
 import PKBar from './PKBar';
 import Chat from './Chat';
 import GiftOverlay from './GiftOverlay';
+import HostProfileModal from '../Modals/HostProfileModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ArenaScreen({
@@ -25,6 +26,31 @@ export default function ArenaScreen({
   battlePhase
 }) {
   const isSnipeTime = timeLeft <= 60 && timeLeft > 0;
+  const [selectedHost, setSelectedHost] = useState(null);
+
+  const mockHost1 = {
+    name: 'Anfitrión_Pro',
+    handle: '@roberth_x',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Host_Pro&style=circle',
+    followers: '2,262',
+    following: '360',
+    league: 'elite',
+    leagueLevel: 3,
+    mvpLevel: 25,
+    communitySize: 144
+  };
+
+  const mockHost2 = {
+    name: 'Host_Rival99',
+    handle: '@rival_99',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rival&style=circle',
+    followers: '1,500',
+    following: '120',
+    league: 'guerrera',
+    leagueLevel: 1,
+    mvpLevel: 18,
+    communitySize: 85
+  };
 
   return (
     <div className="relative flex flex-col h-full bg-black overflow-hidden select-none" onClick={(e) => {
@@ -41,7 +67,10 @@ export default function ArenaScreen({
       <div className="absolute top-0 left-0 w-full z-50 flex justify-between items-start px-4 pt-6 pb-2 pointer-events-none">
         <div className="flex items-center space-x-2">
           {/* Host Profile Píldora */}
-          <div className="flex items-center bg-black/40 backdrop-blur-md rounded-full pr-2 pl-1 py-1 border border-white/10 pointer-events-auto shadow-lg">
+          <div 
+            onClick={(e) => { e.stopPropagation(); setSelectedHost(mockHost1); }}
+            className="flex items-center bg-black/40 backdrop-blur-md rounded-full pr-2 pl-1 py-1 border border-white/10 pointer-events-auto shadow-lg cursor-pointer hover:bg-black/60 transition"
+          >
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 p-0.5 mr-2">
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Host_Pro&style=circle" className="w-full h-full bg-gray-900 rounded-full" alt="host1" />
             </div>
@@ -133,7 +162,10 @@ export default function ArenaScreen({
             <div className="w-1/2 relative bg-gray-900 border-l border-black flex flex-col items-center justify-center overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-tl from-pink-900/40 to-transparent"></div>
               <div className="absolute top-2 right-2 z-20">
-                <span className="bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white font-bold text-[10px] border border-pink-500/30 shadow-md">Host_Rival99</span>
+                <span 
+                  onClick={(e) => { e.stopPropagation(); setSelectedHost(mockHost2); }}
+                  className="bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white font-bold text-[10px] border border-pink-500/30 shadow-md cursor-pointer pointer-events-auto hover:bg-black/80 transition"
+                >Host_Rival99</span>
               </div>
               <div className="w-48 h-48 rounded-full bg-pink-500/20 blur-3xl absolute animate-[pulse_3s_ease-in-out_infinite]"></div>
               <span className="text-pink-400/50 font-bold text-sm z-10 drop-shadow-lg">VIDEO HOST 2</span>
@@ -324,6 +356,12 @@ export default function ArenaScreen({
         </div>
 
       </div>
+
+      <HostProfileModal 
+        isOpen={!!selectedHost} 
+        onClose={() => setSelectedHost(null)} 
+        host={selectedHost} 
+      />
     </div>
   );
 }

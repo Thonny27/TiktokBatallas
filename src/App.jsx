@@ -22,19 +22,19 @@ export default function App() {
   // ESTADO DE LA BATALLA (ARENA)
   // ==========================================
   const [battlePhase, setBattlePhase] = useState('active'); // 'active', 'results', 'solo'
-  const [timeLeft, setTimeLeft] = useState(30); // 30 segundos para probar
+  const [timeLeft, setTimeLeft] = useState(240); // 30 segundos para probar
   const [score1, setScore1] = useState(12400);
   const [score2, setScore2] = useState(8900);
   const [balance, setBalance] = useState(500000); // Monedas ilimitadas para pruebas
   const [totalGiftsSent, setTotalGiftsSent] = useState(0); // Seguimiento de regalos enviados
-  
+
   // UI States
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
   const [isYapeModalOpen, setIsYapeModalOpen] = useState(false);
   const [hearts, setHearts] = useState([]);
   const [smallGifts, setSmallGifts] = useState([]);
   const [isGiantGiftActive, setIsGiantGiftActive] = useState(null);
-  
+
   // Chat State
   const [chatMessages, setChatMessages] = useState([
     { id: 1, user: 'Sistema', text: '¡Bienvenidos a la Batalla Oficial TEGANO!', type: 'system' },
@@ -65,19 +65,19 @@ export default function App() {
       // Simulador orgánico de puntos
       setScore1(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
       setScore2(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
-      
+
       // Simulador orgánico de chat
       if (Math.random() > 0.8) {
         const fakeUsers = ['JuanP', 'AnaBanana', 'King23', 'Sonia_L', 'User_8819'];
         const fakeMsgs = ['¡Vamos!', 'Toca la pantalla', '🚀🚀🚀', 'Cuidado que nos ganan', 'x2 activo pronto'];
         const isVip = Math.random() > 0.7;
         const fakeArtifact = isVip ? TIERS[Math.floor(Math.random() * (TIERS.length - 3))] : null; // Rangos variados para los bots
-        
+
         setChatMessages(prev => {
-          const newMsgs = [...prev, { 
-            id: Date.now(), 
-            user: fakeUsers[Math.floor(Math.random() * fakeUsers.length)], 
-            text: fakeMsgs[Math.floor(Math.random() * fakeMsgs.length)], 
+          const newMsgs = [...prev, {
+            id: Date.now(),
+            user: fakeUsers[Math.floor(Math.random() * fakeUsers.length)],
+            text: fakeMsgs[Math.floor(Math.random() * fakeMsgs.length)],
             type: isVip ? 'vip' : 'normal',
             artifact: fakeArtifact
           }];
@@ -91,12 +91,12 @@ export default function App() {
   // Handlers
   const handleScreenTap = (e) => {
     if (activeTab !== 'arena' || isGiftModalOpen || isYapeModalOpen) return;
-    
+
     // Add heart with some physics offsets
     const driftX = (Math.random() - 0.5) * 100;
     const newHeart = { id: Date.now() + Math.random(), x: e.clientX, y: e.clientY, driftX };
     setHearts(prev => [...prev, newHeart]);
-    
+
     // Combo Logic
     setTapCombo(prev => prev + 1);
     if (comboTimeoutRef.current) clearTimeout(comboTimeoutRef.current);
@@ -111,12 +111,12 @@ export default function App() {
 
   const handleSendMessage = (text) => {
     const artifact = userRole === 'mvp' ? getArtifactForPoints(totalGiftsSent) : null;
-    setChatMessages(prev => [...prev, { 
-      id: Date.now(), 
-      user: 'Tú', 
-      text, 
+    setChatMessages(prev => [...prev, {
+      id: Date.now(),
+      user: 'Tú',
+      text,
       type: userRole === 'mvp' ? 'vip' : 'normal',
-      artifact 
+      artifact
     }].slice(-15));
   };
 
@@ -124,24 +124,27 @@ export default function App() {
     setScore1(prev => prev + amount);
   };
 
-  const handleSendGift = (type, value, name) => {
-    if (balance < value) {
+  const handleSendGift = (gift) => {
+    if (balance < gift.price) {
       alert("Saldo insuficiente");
       return;
     }
-    setBalance(prev => prev - value);
-    setTotalGiftsSent(prev => prev + value);
+    setBalance(prev => prev - gift.price);
+    setTotalGiftsSent(prev => prev + gift.price);
     setIsGiftModalOpen(false);
-    
-    if (type === 'premium') {
-      setIsGiantGiftActive({ emoji: name === 'LEÓN SUPREMO' ? '🦁' : '🚀', name });
+
+    if (gift.id === 'caballero') {
+      setIsGiantGiftActive(gift);
+      setTimeout(() => setIsGiantGiftActive(null), 8500); // Epic 8.5s animation
+    } else if (gift.type === 'premium') {
+      setIsGiantGiftActive(gift);
       setTimeout(() => setIsGiantGiftActive(null), 4000);
     } else {
-      const newSmallGift = { id: Date.now(), emoji: name };
+      const newSmallGift = { id: Date.now(), emoji: gift.emoji, name: gift.name };
       setSmallGifts(prev => [...prev, newSmallGift]);
       setTimeout(() => setSmallGifts(prev => prev.filter(g => g.id !== newSmallGift.id)), 3000);
     }
-    setScore1(prev => prev + value);
+    setScore1(prev => prev + gift.price);
   };
 
   // ==========================================
@@ -155,8 +158,8 @@ export default function App() {
     if (userRole === 'admin') return <AdminPanel onLogout={() => setUserRole(null)} />;
     if (userRole === 'host') return <HostPanel onLogout={() => setUserRole(null)} />;
     if (userRole === 'mvp') return (
-      <MvpPanel 
-        onLogout={() => setUserRole(null)} 
+      <MvpPanel
+        onLogout={() => setUserRole(null)}
         onOpenYape={() => setIsYapeModalOpen(true)}
         totalGiftsSent={totalGiftsSent}
         balance={balance}
@@ -168,7 +171,7 @@ export default function App() {
   return (
     <div className="bg-black min-h-[100dvh] flex flex-col items-center justify-center font-sans">
       <div className="w-full max-w-md h-[100dvh] md:h-[850px] bg-gray-900 relative overflow-hidden md:rounded-3xl shadow-[0_0_50px_rgba(236,72,153,0.15)] md:border-4 border-gray-800 flex flex-col">
-        
+
         {/* Vistas Dinámicas */}
         <div className="flex-1 w-full h-full overflow-hidden relative">
           <AnimatePresence mode="wait">
@@ -181,7 +184,7 @@ export default function App() {
               className="w-full h-full absolute inset-0"
             >
               {activeTab === 'arena' ? (
-                <ArenaScreen 
+                <ArenaScreen
                   userRole={userRole}
                   balance={balance}
                   timeLeft={timeLeft}
@@ -209,30 +212,30 @@ export default function App() {
 
         {/* NAVEGACIÓN INFERIOR (TAB BAR FIXED) */}
         <div className="shrink-0 h-16 bg-gray-900 border-t border-gray-800 flex justify-around items-center px-4 relative z-50">
-           <button 
-              onClick={() => setActiveTab('arena')}
-              className={`flex flex-col items-center justify-center w-20 transition-colors ${activeTab === 'arena' ? 'text-pink-500' : 'text-gray-500 hover:text-gray-300'}`}
-           >
-             <Flame size={24} className={activeTab === 'arena' ? 'drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]' : ''} />
-             <span className="text-[10px] font-bold mt-1">Arena en Vivo</span>
-           </button>
-           
-           <button 
-              onClick={() => setActiveTab('panel')}
-              className={`flex flex-col items-center justify-center w-20 transition-colors ${activeTab === 'panel' ? 'text-cyan-500' : 'text-gray-500 hover:text-gray-300'}`}
-           >
-             <Users size={24} className={activeTab === 'panel' ? 'drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : ''} />
-             <span className="text-[10px] font-bold mt-1">
-               {userRole === 'admin' ? 'Panel Admin' : userRole === 'host' ? 'Mi Panel' : 'Perfil MVP'}
-             </span>
-           </button>
+          <button
+            onClick={() => setActiveTab('arena')}
+            className={`flex flex-col items-center justify-center w-20 transition-colors ${activeTab === 'arena' ? 'text-pink-500' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            <Flame size={24} className={activeTab === 'arena' ? 'drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]' : ''} />
+            <span className="text-[10px] font-bold mt-1">Arena en Vivo</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('panel')}
+            className={`flex flex-col items-center justify-center w-20 transition-colors ${activeTab === 'panel' ? 'text-cyan-500' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            <Users size={24} className={activeTab === 'panel' ? 'drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : ''} />
+            <span className="text-[10px] font-bold mt-1">
+              {userRole === 'admin' ? 'Panel Admin' : userRole === 'host' ? 'Mi Panel' : 'Perfil MVP'}
+            </span>
+          </button>
         </div>
 
         {/* Modales Globales */}
         <YapeModal isOpen={isYapeModalOpen} onClose={() => setIsYapeModalOpen(false)} />
-        <GiftCatalogModal 
-          isOpen={isGiftModalOpen} 
-          onClose={() => setIsGiftModalOpen(false)} 
+        <GiftCatalogModal
+          isOpen={isGiftModalOpen}
+          onClose={() => setIsGiftModalOpen(false)}
           onSendGift={handleSendGift}
           onOpenYape={() => setIsYapeModalOpen(true)}
           balance={balance}
