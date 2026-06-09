@@ -5,10 +5,10 @@ import Chat from './Chat';
 import GiftOverlay from './GiftOverlay';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function ArenaScreen({ 
-  userRole, 
-  onOpenGiftModal, 
-  onOpenYape, 
+export default function ArenaScreen({
+  userRole,
+  onOpenGiftModal,
+  onOpenYape,
   balance,
   timeLeft,
   isBattleActive,
@@ -21,7 +21,8 @@ export default function ArenaScreen({
   onScreenTap,
   chatMessages,
   onSendMessage,
-  onAddScore
+  onAddScore,
+  battlePhase
 }) {
   const isSnipeTime = timeLeft <= 60 && timeLeft > 0;
 
@@ -30,7 +31,7 @@ export default function ArenaScreen({
       onScreenTap(e);
       if (isBattleActive) onAddScore(1);
     }}>
-      
+
       {/* CAPA INVISIBLE EXCLUSIVA PARA CAPTURAR TAPS (Evita bloqueos) */}
       <div className="absolute inset-0 z-10 cursor-pointer pointer-events-auto"></div>
 
@@ -77,14 +78,116 @@ export default function ArenaScreen({
               <div className="absolute inset-0 bg-gradient-to-tr from-cyan-900/40 to-transparent"></div>
               <div className="w-48 h-48 rounded-full bg-cyan-500/20 blur-3xl absolute animate-[pulse_4s_ease-in-out_infinite]"></div>
               <span className="text-cyan-400/50 font-bold text-sm z-10 drop-shadow-lg">VIDEO HOST 1</span>
+
+              {/* Animación de WIN/LOSE Host 1 */}
+              <AnimatePresence>
+                {battlePhase === 'results' && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0, rotate: -20 }}
+                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] z-30"
+                  >
+                    {score1 >= score2 ? (
+                      <div className="flex flex-col items-center relative">
+                        {/* Aura radial dorada */}
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-yellow-500/40 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
+                        
+                        <motion.div
+                          animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
+                          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                          className="text-7xl drop-shadow-[0_0_30px_rgba(250,204,21,1)] mb-2 relative z-10"
+                        >
+                          👑
+                        </motion.div>
+                        
+                        <div className="relative z-10 bg-black/40 px-6 py-1 rounded-full border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.4)] backdrop-blur-sm mt-1">
+                          <span className="font-black italic text-4xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
+                            WIN
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center relative opacity-90 grayscale-[40%]">
+                        {/* Aura oscura y fría */}
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-blue-900/30 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
+                        
+                        <motion.div
+                          animate={{ opacity: [0.6, 1, 0.6], y: [0, 5, 0] }}
+                          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                          className="text-7xl drop-shadow-[0_0_20px_rgba(100,116,139,0.8)] mb-2 relative z-10"
+                        >
+                          🌧️
+                        </motion.div>
+                        
+                        <div className="relative z-10 bg-black/40 px-5 py-1 rounded-full border border-gray-500/30 shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-sm mt-1">
+                          <span className="font-black italic text-3xl text-gray-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
+                            LOSE
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <div className="w-1/2 relative bg-gray-900 border-l border-black flex flex-col items-center justify-center overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-tl from-pink-900/40 to-transparent"></div>
-               <div className="absolute top-2 right-2 z-20">
+              <div className="absolute inset-0 bg-gradient-to-tl from-pink-900/40 to-transparent"></div>
+              <div className="absolute top-2 right-2 z-20">
                 <span className="bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white font-bold text-[10px] border border-pink-500/30 shadow-md">Host_Rival99</span>
               </div>
               <div className="w-48 h-48 rounded-full bg-pink-500/20 blur-3xl absolute animate-[pulse_3s_ease-in-out_infinite]"></div>
               <span className="text-pink-400/50 font-bold text-sm z-10 drop-shadow-lg">VIDEO HOST 2</span>
+
+              {/* Animación de WIN/LOSE Host 2 */}
+              <AnimatePresence>
+                {battlePhase === 'results' && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0, rotate: 20 }}
+                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] z-30"
+                  >
+                    {score2 > score1 ? (
+                      <div className="flex flex-col items-center relative">
+                        {/* Aura radial dorada */}
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-yellow-500/40 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
+                        
+                        <motion.div
+                          animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
+                          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                          className="text-7xl drop-shadow-[0_0_30px_rgba(250,204,21,1)] mb-2 relative z-10"
+                        >
+                          👑
+                        </motion.div>
+                        
+                        <div className="relative z-10 bg-black/40 px-6 py-1 rounded-full border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.4)] backdrop-blur-sm mt-1">
+                          <span className="font-black italic text-4xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
+                            WIN
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center relative opacity-90 grayscale-[40%]">
+                        {/* Aura oscura y fría */}
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-blue-900/30 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
+                        
+                        <motion.div
+                          animate={{ opacity: [0.6, 1, 0.6], y: [0, 5, 0] }}
+                          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                          className="text-7xl drop-shadow-[0_0_20px_rgba(100,116,139,0.8)] mb-2 relative z-10"
+                        >
+                          🌧️
+                        </motion.div>
+                        
+                        <div className="relative z-10 bg-black/40 px-5 py-1 rounded-full border border-gray-500/30 shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-sm mt-1">
+                          <span className="font-black italic text-3xl text-gray-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
+                            LOSE
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </>
@@ -101,17 +204,17 @@ export default function ArenaScreen({
           4. ZONA INFERIOR: CHAT, ANIMACIONES Y BOTONES
           ========================================= */}
       <div className={`flex-1 min-h-0 w-full flex flex-col justify-end pointer-events-none z-30 pb-4 relative ${!isBattleActive ? 'bg-gradient-to-t from-black via-black/50 to-transparent' : ''}`}>
-        
+
         {/* Lluvia de corazones (Tap Tap) */}
         <AnimatePresence>
           {hearts.map(heart => (
-            <motion.div 
-              key={heart.id} 
+            <motion.div
+              key={heart.id}
               initial={{ opacity: 1, y: 0, x: 0, scale: 0.5, rotate: 0 }}
               animate={{ opacity: 0, y: -400, x: heart.driftX, scale: 1.8, rotate: heart.driftX }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="absolute text-5xl pointer-events-none z-50 drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]" 
+              className="absolute text-5xl pointer-events-none z-50 drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]"
               style={{ left: heart.x - 25, bottom: 200 + heart.y }}
             >
               💖
@@ -122,7 +225,7 @@ export default function ArenaScreen({
         {/* Combo Multiplier Flotante */}
         <AnimatePresence>
           {tapCombo > 5 && (
-            <motion.div 
+            <motion.div
               initial={{ scale: 0, opacity: 0, rotate: -10 }}
               animate={{ scale: 1.2, opacity: 1, rotate: 0 }}
               exit={{ scale: 0, opacity: 0 }}
@@ -142,9 +245,9 @@ export default function ArenaScreen({
 
         {/* Chat Component (Ahora dinámico) */}
         <div className="w-full px-4 mb-2 flex-1 flex flex-col justify-end min-h-0 overflow-hidden">
-           <AnimatePresence>
+          <AnimatePresence>
             {isSnipeTime && isBattleActive && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
@@ -158,14 +261,14 @@ export default function ArenaScreen({
           </AnimatePresence>
           <Chat messages={chatMessages} userRole={userRole} isBattleActive={isBattleActive} />
         </div>
-        
+
         {/* BOTONERA TIKTOK CLON EXACTO */}
         <div className="w-full px-3 flex items-center justify-between pointer-events-auto space-x-2 shrink-0">
-          
+
           {/* Input de Chat Estilo Píldora Minimalista */}
           <div className="flex-1">
             <div className="bg-white/10 backdrop-blur-md rounded-full border border-white/5 flex items-center pl-4 pr-1 py-1 w-full">
-              <input 
+              <input
                 id="chat-input-mobile"
                 type="text"
                 placeholder="Type..."
@@ -177,7 +280,7 @@ export default function ArenaScreen({
                   }
                 }}
               />
-              <button 
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
                   const input = document.getElementById('chat-input-mobile');
@@ -195,7 +298,7 @@ export default function ArenaScreen({
 
           {/* Iconos de Acción Derecha */}
           <div className="flex items-center space-x-2.5">
-            <button 
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 onAddScore(1); // Suma 1 a la barra directamente
@@ -205,8 +308,8 @@ export default function ArenaScreen({
             >
               <span className="text-[16px]">🌹</span>
             </button>
-            
-            <button 
+
+            <button
               onClick={(e) => { e.stopPropagation(); onOpenGiftModal(); }}
               className="w-9 h-9 rounded-full bg-[#ff2a5f] flex items-center justify-center text-white shadow-[0_0_10px_rgba(255,42,95,0.4)] hover:scale-105 transition-all relative group"
             >

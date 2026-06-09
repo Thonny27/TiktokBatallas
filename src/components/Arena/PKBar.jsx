@@ -45,12 +45,17 @@ export default function PKBar({ score1, score2, timeLeft }) {
          >
          </div>
 
-         {/* Separador Central */}
+         {/* Separador Central (VS Animado) */}
          <div 
-           className="absolute top-0 bottom-0 w-2 transform -translate-x-1/2 z-10 transition-all duration-700 flex items-center justify-center" 
+           className="absolute top-0 bottom-0 w-8 transform -translate-x-1/2 z-10 transition-all duration-700 flex items-center justify-center" 
            style={{ left: `${score1Pct}%` }}
          >
-            <div className="w-1 h-8 bg-yellow-400 transform -skew-x-[20deg] shadow-[0_0_10px_rgba(250,204,21,1)]"></div>
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-orange-600 flex items-center justify-center shadow-[0_0_15px_rgba(250,204,21,0.8)] border border-white/40 z-20">
+              <span className="text-[9px] font-black italic text-black drop-shadow-sm">VS</span>
+            </div>
+            
+            {/* Efecto de choque/fuego detrás del VS */}
+            <div className="absolute inset-0 bg-yellow-400/30 blur-md rounded-full animate-pulse z-10"></div>
          </div>
       </div>
 

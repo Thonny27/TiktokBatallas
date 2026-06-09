@@ -21,7 +21,8 @@ export default function App() {
   // ==========================================
   // ESTADO DE LA BATALLA (ARENA)
   // ==========================================
-  const [timeLeft, setTimeLeft] = useState(240); // 4 minutos
+  const [battlePhase, setBattlePhase] = useState('active'); // 'active', 'results', 'solo'
+  const [timeLeft, setTimeLeft] = useState(30); // 30 segundos para probar
   const [score1, setScore1] = useState(12400);
   const [score2, setScore2] = useState(8900);
   const [balance, setBalance] = useState(500000); // Monedas ilimitadas para pruebas
@@ -47,12 +48,16 @@ export default function App() {
 
   // Efecto del reloj de batalla y simuladores
   useEffect(() => {
-    if (!userRole || activeTab !== 'arena') return;
+    if (!userRole || activeTab !== 'arena' || battlePhase !== 'active') return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 0) {
+        if (prev <= 1) {
           clearInterval(timer);
+          setBattlePhase('results');
+          setTimeout(() => {
+            setBattlePhase('solo');
+          }, 6000); // Muestra los resultados (animaciones Win/Lose) por 6 segundos
           return 0;
         }
         return prev - 1;
@@ -180,7 +185,8 @@ export default function App() {
                   userRole={userRole}
                   balance={balance}
                   timeLeft={timeLeft}
-                  isBattleActive={timeLeft > 0}
+                  battlePhase={battlePhase}
+                  isBattleActive={battlePhase === 'active' || battlePhase === 'results'}
                   score1={score1}
                   score2={score2}
                   hearts={hearts}
