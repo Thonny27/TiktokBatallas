@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getArtifactForPoints, TIERS } from './utils/tiers';
 import { Flame, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -64,8 +65,17 @@ export default function App() {
       if (Math.random() > 0.8) {
         const fakeUsers = ['JuanP', 'AnaBanana', 'King23', 'Sonia_L', 'User_8819'];
         const fakeMsgs = ['¡Vamos!', 'Toca la pantalla', '🚀🚀🚀', 'Cuidado que nos ganan', 'x2 activo pronto'];
+        const isVip = Math.random() > 0.7;
+        const fakeArtifact = isVip ? TIERS[Math.floor(Math.random() * (TIERS.length - 3))] : null; // Rangos variados para los bots
+        
         setChatMessages(prev => {
-          const newMsgs = [...prev, { id: Date.now(), user: fakeUsers[Math.floor(Math.random() * fakeUsers.length)], text: fakeMsgs[Math.floor(Math.random() * fakeMsgs.length)], type: 'normal' }];
+          const newMsgs = [...prev, { 
+            id: Date.now(), 
+            user: fakeUsers[Math.floor(Math.random() * fakeUsers.length)], 
+            text: fakeMsgs[Math.floor(Math.random() * fakeMsgs.length)], 
+            type: isVip ? 'vip' : 'normal',
+            artifact: fakeArtifact
+          }];
           return newMsgs.slice(-15); // Mantener solo los últimos 15
         });
       }
@@ -95,7 +105,14 @@ export default function App() {
   };
 
   const handleSendMessage = (text) => {
-    setChatMessages(prev => [...prev, { id: Date.now(), user: 'Tú', text, type: userRole === 'mvp' ? 'vip' : 'normal' }].slice(-15));
+    const artifact = userRole === 'mvp' ? getArtifactForPoints(totalGiftsSent) : null;
+    setChatMessages(prev => [...prev, { 
+      id: Date.now(), 
+      user: 'Tú', 
+      text, 
+      type: userRole === 'mvp' ? 'vip' : 'normal',
+      artifact 
+    }].slice(-15));
   };
 
   const handleAddScore = (amount) => {

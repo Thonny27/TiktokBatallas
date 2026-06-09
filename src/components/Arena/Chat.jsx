@@ -28,10 +28,19 @@ export default function Chat({ messages, userRole, isBattleActive }) {
               transition={{ duration: 0.2 }}
               className="text-[13px] flex items-start"
             >
-              <div className={`rounded-xl px-2 py-1 inline-block max-w-[85%] break-words shadow-sm ${!isBattleActive ? 'bg-black/20 backdrop-blur-sm border border-white/5' : ''}`}>
-                <span className={`font-bold mr-1 shrink-0 ${msg.type === 'vip' ? 'text-yellow-400' : 'text-gray-300'}`}>
-                  {msg.type === 'vip' && <Star size={10} className="inline mr-1 text-yellow-500 mb-0.5" />}
-                  {msg.user}:
+              <div className={`rounded-xl px-2 py-1 inline-block max-w-[85%] break-words shadow-sm 
+                ${!isBattleActive ? 'bg-black/20 backdrop-blur-sm border border-white/5' : ''} 
+                ${msg.artifact ? `bg-gradient-to-r ${msg.artifact.colors} bg-opacity-20 border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]` : ''}
+              `}>
+                <span className={`font-bold mr-1 shrink-0 ${msg.type === 'vip' ? (msg.artifact ? 'text-white' : 'text-yellow-400') : 'text-gray-300'}`}>
+                  {msg.artifact ? (
+                    <span className="inline-flex items-center justify-center mr-1 bg-black/40 rounded border border-white/10 px-1 py-0.5">
+                      <span className="text-[10px] leading-none drop-shadow-md">{msg.artifact.icon}</span>
+                    </span>
+                  ) : msg.type === 'vip' ? (
+                    <Star size={10} className="inline mr-1 text-yellow-500 mb-0.5" />
+                  ) : null}
+                  <span className={msg.artifact && msg.artifact.id > 3 ? 'text-cyan-200' : ''}>{msg.user}</span>:
                 </span>
                 <span className="text-white font-medium leading-tight">{msg.text}</span>
               </div>
