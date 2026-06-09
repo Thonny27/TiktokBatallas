@@ -1,41 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HelpCircle, Trophy, Coins, Star, Zap, Check, Target, Gift } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TIERS, getCurrentTierIndex } from '../../utils/tiers';
 
 export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, balance, setBalance }) {
-  // Definición de Tramos (Tiers) por Puntos con Beneficios
-  const TIERS = [
-    { id: 1, label: 'I', range: '100+ pts', unlockPoints: 100, name: 'Anillo de Bronce', icon: '💍', colors: 'from-amber-700 to-amber-900', border: 'border-amber-700/50',
-      benefits: ['1 Emote exclusivo básico', 'Fondo simple de perfil'] },
-    { id: 2, label: 'II', range: '500+ pts', unlockPoints: 500, name: 'Espada de Acero', icon: '⚔️', colors: 'from-zinc-400 to-zinc-600', border: 'border-zinc-400/50',
-      benefits: ['Color de nombre especial en chat', 'Marco de Avatar de Acero'] },
-    { id: 3, label: 'III', range: '1.5K+ pts', unlockPoints: 1500, name: 'Escudo de Plata', icon: '🔰', colors: 'from-slate-300 to-slate-500', border: 'border-slate-300/50',
-      benefits: ['Acceso a Emojis Animados', 'Marco de Plata brillante'] },
-    { id: 4, label: 'IV', range: '3K+ pts', unlockPoints: 3000, name: 'Armadura de Hierro', icon: '🛡️', colors: 'from-gray-400 to-gray-600', border: 'border-gray-400/50',
-      benefits: ['Mensaje de entrada destacado', 'Votos x1.1 en encuestas del Host'] },
-    { id: 5, label: 'V', range: '5K+ pts', unlockPoints: 5000, name: 'Estandarte del Clan', icon: '🎌', colors: 'from-red-500 to-orange-500', border: 'border-red-400/50',
-      benefits: ['Inmunidad al Modo Lento', 'Saludo en vivo garantizado del Host'] },
-    { id: 6, label: 'VI', range: '8K+ pts', unlockPoints: 8000, name: 'Casco de Oro', icon: '⚜️', colors: 'from-yellow-400 to-amber-600', border: 'border-yellow-400/50',
-      benefits: ['Marco de Oro con animaciones', 'Acceso a Streams Privados/Q&A'] },
-    { id: 7, label: 'VII', range: '12K+ pts', unlockPoints: 12000, name: 'Cetro de Cristal', icon: '🪄', colors: 'from-purple-400 to-indigo-500', border: 'border-purple-400/50',
-      benefits: ['Burbuja de Chat 3D exclusiva', '15% Descuento en merch/servicios'] },
-    { id: 8, label: 'VIII', range: '20K+ pts', unlockPoints: 20000, name: 'Corona de Diamante', icon: '💎', colors: 'from-cyan-300 to-blue-500', border: 'border-cyan-400/50',
-      benefits: ['Fijado en Pantalla Principal (Top)', 'Prioridad para Jugar en vivo'] },
-    { id: 9, label: 'IX', range: '30K+ pts', unlockPoints: 30000, name: 'Trono de Leyenda', icon: '👑', colors: 'from-fuchsia-500 to-rose-600', border: 'border-fuchsia-500/50',
-      benefits: ['Retrato en el Salón de Honor', 'Entrada Épica Pantalla Completa', 'Experiencia 1a1 Privada (Mensual)'] },
-  ];
-
-  const getCurrentTierIndex = (points) => {
-    let index = -1;
-    for (let i = 0; i < TIERS.length; i++) {
-      if (points >= TIERS[i].unlockPoints) {
-        index = i;
-      }
-    }
-    return index;
-  };
-
-  // Mock data / States (ya no usamos currentLevel fijo, sino totalGiftsSent)
   const currentTierIndex = getCurrentTierIndex(totalGiftsSent);
   const artifact = currentTierIndex >= 0 ? TIERS[currentTierIndex] : { name: 'Iniciado', icon: '🌱', colors: 'from-stone-700 to-stone-900', textColor: 'text-stone-400', border: 'border-stone-700/50' };
 
@@ -132,8 +100,12 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
             <div className="flex items-center space-x-4">
               <div className={`w-16 h-16 rounded-2xl bg-gradient-to-tr ${artifact.colors} p-0.5 shadow-lg relative`}>
                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Thonny" alt="Thonny" className="w-full h-full rounded-xl bg-gray-900 object-cover" />
-                <div className={`absolute -bottom-2 -right-2 bg-gray-900 border ${artifact.border} rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-xl`}>
-                  {artifact.icon}
+                <div className={`absolute -bottom-2 -right-2 bg-gradient-to-br ${artifact.colors} border-2 ${artifact.border} rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-xl overflow-hidden`}>
+                  {artifact.image ? (
+                    <img src={artifact.image} alt={artifact.name} className="w-full h-full object-cover scale-110" />
+                  ) : (
+                    artifact.icon
+                  )}
                 </div>
               </div>
               <div>
@@ -217,8 +189,12 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
                     selectedTierIndex === idx ? 'scale-110 opacity-100 z-10' : 'scale-90 opacity-40 hover:opacity-80'
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${tier.colors} flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(255,255,255,0.1)] border-2 ${selectedTierIndex === idx ? tier.border : 'border-transparent'}`}>
-                    {tier.icon}
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${tier.colors} flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(255,255,255,0.1)] border-2 overflow-hidden ${selectedTierIndex === idx ? tier.border : 'border-transparent'}`}>
+                    {tier.image ? (
+                      <img src={tier.image} alt={tier.name} className="w-full h-full object-cover scale-[1.15]" />
+                    ) : (
+                      tier.icon
+                    )}
                   </div>
                 </button>
                 {idx < TIERS.length - 1 && (
@@ -229,23 +205,38 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
           </div>
 
           {/* Big Card del Nivel Seleccionado */}
-          <div className={`w-full rounded-3xl p-6 relative overflow-hidden bg-gradient-to-br ${selectedTier.colors} transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.1)] border ${selectedTier.border}`}>
-            {/* Gradiente más oscuro para contrastar fondo */}
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+          <div className={`w-full rounded-3xl p-6 relative overflow-hidden bg-gradient-to-br ${selectedTier.colors} transition-all duration-500 shadow-[0_0_30px_rgba(255,255,255,0.2)] border ${selectedTier.border}`}>
             
-            <div className="relative z-10 flex justify-between items-center">
+            {/* 1. Fondo Oscuro Base */}
+            <div className="absolute inset-0 bg-black/40 z-0"></div>
+
+            {/* 2. Escenario a Pantalla Completa */}
+            {selectedTier.image && (
+              <div className="absolute inset-0 z-0">
+                <img src={selectedTier.image} alt="scenario" className="w-full h-full object-cover object-right mix-blend-lighten opacity-90" />
+              </div>
+            )}
+            
+            {/* 3. Gradiente oscuro protector para el texto a la izquierda */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent z-0 pointer-events-none"></div>
+            
+            {/* Contenido Frontal */}
+            <div className="relative z-10 flex justify-between items-center min-h-[96px]">
               <div>
-                <h3 className="text-5xl font-black italic tracking-tighter drop-shadow-md text-white">{selectedTier.label}</h3>
-                <p className="text-sm font-bold text-white/70 tracking-wide mt-1">{selectedTier.range}</p>
+                <h3 className="text-6xl font-black italic tracking-tighter drop-shadow-lg text-white">{selectedTier.label}</h3>
+                <p className="text-sm font-bold text-white/80 tracking-wide mt-1 drop-shadow-md">{selectedTier.range}</p>
               </div>
               
-              <div className="w-24 h-24 flex items-center justify-center text-7xl drop-shadow-[0_0_25px_rgba(255,255,255,0.6)]">
-                {selectedTier.icon}
-              </div>
+              {/* Fallback a emoji si no hay imagen (niveles altos pendientes) */}
+              {!selectedTier.image && (
+                <div className="w-24 h-24 flex items-center justify-center text-7xl drop-shadow-[0_0_25px_rgba(255,255,255,0.6)]">
+                  {selectedTier.icon}
+                </div>
+              )}
             </div>
             
-            <div className="relative z-10 mt-6 pt-6 border-t border-white/20">
-              <p className="font-bold text-sm text-white/90">
+            <div className="relative z-10 mt-6 pt-5 border-t border-white/20">
+              <p className="font-bold text-sm text-white/90 drop-shadow-md">
                 {isReached ? '¡Felicitaciones por alcanzar este nivel!' : 'Aún no alcanzaste este nivel de donador.'}
               </p>
             </div>
@@ -267,8 +258,12 @@ export default function MvpPanel({ onLogout, onOpenYape, totalGiftsSent = 0, bal
             <div className="space-y-2.5">
               {/* Insignia Base (Siempre presente) */}
               <div className="flex items-center space-x-3 bg-black/20 p-2.5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                <div className={`w-10 h-10 shrink-0 rounded-lg bg-gradient-to-tr ${selectedTier.colors} flex items-center justify-center text-xl shadow-inner`}>
-                  {selectedTier.icon}
+                <div className={`w-10 h-10 shrink-0 rounded-lg bg-gradient-to-tr ${selectedTier.colors} flex items-center justify-center text-xl shadow-inner overflow-hidden`}>
+                  {selectedTier.image ? (
+                    <img src={selectedTier.image} alt={selectedTier.name} className="w-full h-full object-cover scale-110" />
+                  ) : (
+                    selectedTier.icon
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <span className="font-bold text-sm text-white">Insignia: {selectedTier.name}</span>

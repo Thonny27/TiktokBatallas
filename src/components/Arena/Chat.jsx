@@ -34,8 +34,12 @@ export default function Chat({ messages, userRole, isBattleActive }) {
               `}>
                 <span className={`font-bold mr-1 shrink-0 ${msg.type === 'vip' ? (msg.artifact ? 'text-white' : 'text-yellow-400') : 'text-gray-300'}`}>
                   {msg.artifact ? (
-                    <span className="inline-flex items-center justify-center mr-1 bg-black/40 rounded border border-white/10 px-1 py-0.5">
-                      <span className="text-[10px] leading-none drop-shadow-md">{msg.artifact.icon}</span>
+                    <span className="inline-flex items-center justify-center mr-1 bg-black/40 rounded border border-white/10 px-1 py-0.5 overflow-hidden">
+                      {msg.artifact.image ? (
+                        <img src={msg.artifact.image} alt={msg.artifact.name} className="w-3 h-3 object-contain" />
+                      ) : (
+                        <span className="text-[10px] leading-none drop-shadow-md">{msg.artifact.icon}</span>
+                      )}
                     </span>
                   ) : msg.type === 'vip' ? (
                     <Star size={10} className="inline mr-1 text-yellow-500 mb-0.5" />
