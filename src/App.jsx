@@ -101,7 +101,7 @@ export default function App() {
             type: isVip ? 'vip' : 'normal',
             artifact: fakeArtifact
           }];
-          return newMsgs.slice(-15); // Mantener solo los últimos 15
+          return newMsgs.slice(-50); // Mantener un historial de 50 para poder scrollear
         });
       }
     }, 1000);
@@ -163,7 +163,7 @@ export default function App() {
       text,
       type: userRole === 'mvp' ? 'vip' : 'normal',
       artifact
-    }].slice(-15));
+    }].slice(-50));
   };
 
   const handleAddScore = (amount) => {

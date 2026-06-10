@@ -70,7 +70,7 @@ export default function ArenaScreen({
       <div className="absolute top-0 left-0 w-full z-50 flex justify-between items-start px-4 pt-6 pb-2 pointer-events-none">
         <div className="flex items-center space-x-2">
           {/* Host Profile Píldora */}
-          <div 
+          <div
             onClick={(e) => { e.stopPropagation(); setSelectedHost(mockHost1); }}
             className="flex items-center bg-black/40 backdrop-blur-md rounded-full pr-2 pl-1 py-1 border border-white/10 pointer-events-auto shadow-lg cursor-pointer hover:bg-black/60 transition"
           >
@@ -105,7 +105,7 @@ export default function ArenaScreen({
           </div>
 
           {/* 3. VIDEOS (Mitad de pantalla en PK Mode, espaciados para no tapar header/pkbar) */}
-          <div className="flex w-full h-[55%] shrink-0 pointer-events-none relative z-20 pt-[115px]">
+          <div className="flex w-full h-[65%] shrink-0 pointer-events-none relative z-20 pt-[115px]">
             <div className="w-1/2 relative bg-gray-900 border-r border-black flex flex-col items-center justify-center overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-tr from-cyan-900/40 to-transparent"></div>
               <div className="w-48 h-48 rounded-full bg-cyan-500/20 blur-3xl absolute animate-[pulse_4s_ease-in-out_infinite]"></div>
@@ -123,7 +123,7 @@ export default function ArenaScreen({
                       <div className="flex flex-col items-center relative">
                         {/* Aura radial dorada */}
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-yellow-500/40 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
-                        
+
                         <motion.div
                           animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
                           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
@@ -131,7 +131,7 @@ export default function ArenaScreen({
                         >
                           👑
                         </motion.div>
-                        
+
                         <div className="relative z-10 bg-black/40 px-6 py-1 rounded-full border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.4)] backdrop-blur-sm mt-1">
                           <span className="font-black italic text-4xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
                             WIN
@@ -142,7 +142,7 @@ export default function ArenaScreen({
                       <div className="flex flex-col items-center relative opacity-90 grayscale-[40%]">
                         {/* Aura oscura y fría */}
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-blue-900/30 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
-                        
+
                         <motion.div
                           animate={{ opacity: [0.6, 1, 0.6], y: [0, 5, 0] }}
                           transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
@@ -150,7 +150,7 @@ export default function ArenaScreen({
                         >
                           🌧️
                         </motion.div>
-                        
+
                         <div className="relative z-10 bg-black/40 px-5 py-1 rounded-full border border-gray-500/30 shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-sm mt-1">
                           <span className="font-black italic text-3xl text-gray-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
                             LOSE
@@ -165,7 +165,7 @@ export default function ArenaScreen({
             <div className="w-1/2 relative bg-gray-900 border-l border-black flex flex-col items-center justify-center overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-tl from-pink-900/40 to-transparent"></div>
               <div className="absolute top-2 right-2 z-20">
-                <span 
+                <span
                   onClick={(e) => { e.stopPropagation(); setSelectedHost(mockHost2); }}
                   className="bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white font-bold text-[10px] border border-pink-500/30 shadow-md cursor-pointer pointer-events-auto hover:bg-black/80 transition"
                 >Host_Rival99</span>
@@ -185,7 +185,7 @@ export default function ArenaScreen({
                       <div className="flex flex-col items-center relative">
                         {/* Aura radial dorada */}
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-yellow-500/40 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
-                        
+
                         <motion.div
                           animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
                           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
@@ -193,7 +193,7 @@ export default function ArenaScreen({
                         >
                           👑
                         </motion.div>
-                        
+
                         <div className="relative z-10 bg-black/40 px-6 py-1 rounded-full border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.4)] backdrop-blur-sm mt-1">
                           <span className="font-black italic text-4xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
                             WIN
@@ -204,7 +204,7 @@ export default function ArenaScreen({
                       <div className="flex flex-col items-center relative opacity-90 grayscale-[40%]">
                         {/* Aura oscura y fría */}
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-blue-900/30 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
-                        
+
                         <motion.div
                           animate={{ opacity: [0.6, 1, 0.6], y: [0, 5, 0] }}
                           transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
@@ -212,7 +212,7 @@ export default function ArenaScreen({
                         >
                           🌧️
                         </motion.div>
-                        
+
                         <div className="relative z-10 bg-black/40 px-5 py-1 rounded-full border border-gray-500/30 shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-sm mt-1">
                           <span className="font-black italic text-3xl text-gray-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
                             LOSE
@@ -278,18 +278,33 @@ export default function ArenaScreen({
 
         <GiftOverlay isGiantGiftActive={isGiantGiftActive} smallGifts={smallGifts} />
 
+        <AnimatePresence>
+          {isSnipeTime && isBattleActive && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full flex justify-center mb-2 shrink-0 pointer-events-none z-50"
+            >
+              <div className="bg-gradient-to-r from-red-600 via-pink-600 to-yellow-500 text-white font-black italic px-4 py-1 rounded-full border border-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.6)] text-sm flex items-center animate-pulse">
+                <AlertTriangle size={16} className="mr-1" /> ¡x2 PUNTOS!
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Chat Component (Ahora dinámico) */}
         <div className="w-full px-4 mb-2 flex-1 flex flex-col justify-end min-h-0 overflow-hidden relative">
-          
+
           {/* WIDGET REGALO COMUNITARIO */}
           <div className="absolute right-4 bottom-4 flex flex-col items-center pointer-events-auto z-40">
             {communityGiftStatus === 'locked' ? (
-              <div 
+              <div
                 onClick={(e) => { e.stopPropagation(); onOpenCommunityGift(); }}
                 className="w-12 h-36 bg-black/60 border border-white/20 rounded-full flex flex-col justify-end overflow-hidden shadow-lg backdrop-blur-md p-1 relative cursor-pointer hover:bg-black/80 transition"
               >
-                <div 
-                  className="w-full bg-gradient-to-t from-pink-600 via-purple-500 to-cyan-400 rounded-full transition-all duration-500" 
+                <div
+                  className="w-full bg-gradient-to-t from-pink-600 via-purple-500 to-cyan-400 rounded-full transition-all duration-500"
                   style={{ height: `${communityGiftProgress}%` }}
                 ></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -338,20 +353,7 @@ export default function ArenaScreen({
             ) : null}
           </div>
 
-          <AnimatePresence>
-            {isSnipeTime && isBattleActive && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                className="w-full flex justify-center mb-2"
-              >
-                <div className="bg-gradient-to-r from-red-600 via-pink-600 to-yellow-500 text-white font-black italic px-4 py-1 rounded-full border border-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.6)] text-sm flex items-center animate-pulse">
-                  <AlertTriangle size={16} className="mr-1" /> ¡x2 PUNTOS!
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+
           <Chat messages={chatMessages} userRole={userRole} isBattleActive={isBattleActive} />
         </div>
 
@@ -418,10 +420,10 @@ export default function ArenaScreen({
 
       </div>
 
-      <HostProfileModal 
-        isOpen={!!selectedHost} 
-        onClose={() => setSelectedHost(null)} 
-        host={selectedHost} 
+      <HostProfileModal
+        isOpen={!!selectedHost}
+        onClose={() => setSelectedHost(null)}
+        host={selectedHost}
       />
     </div>
   );
