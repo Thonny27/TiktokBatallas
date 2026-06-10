@@ -23,7 +23,10 @@ export default function ArenaScreen({
   chatMessages,
   onSendMessage,
   onAddScore,
-  battlePhase
+  battlePhase,
+  communityGiftProgress = 0,
+  communityGiftStatus = 'locked',
+  onOpenCommunityGift
 }) {
   const isSnipeTime = timeLeft <= 60 && timeLeft > 0;
   const [selectedHost, setSelectedHost] = useState(null);
@@ -276,7 +279,65 @@ export default function ArenaScreen({
         <GiftOverlay isGiantGiftActive={isGiantGiftActive} smallGifts={smallGifts} />
 
         {/* Chat Component (Ahora dinámico) */}
-        <div className="w-full px-4 mb-2 flex-1 flex flex-col justify-end min-h-0 overflow-hidden">
+        <div className="w-full px-4 mb-2 flex-1 flex flex-col justify-end min-h-0 overflow-hidden relative">
+          
+          {/* WIDGET REGALO COMUNITARIO */}
+          <div className="absolute right-4 bottom-4 flex flex-col items-center pointer-events-auto z-40">
+            {communityGiftStatus === 'locked' ? (
+              <div 
+                onClick={(e) => { e.stopPropagation(); onOpenCommunityGift(); }}
+                className="w-12 h-36 bg-black/60 border border-white/20 rounded-full flex flex-col justify-end overflow-hidden shadow-lg backdrop-blur-md p-1 relative cursor-pointer hover:bg-black/80 transition"
+              >
+                <div 
+                  className="w-full bg-gradient-to-t from-pink-600 via-purple-500 to-cyan-400 rounded-full transition-all duration-500" 
+                  style={{ height: `${communityGiftProgress}%` }}
+                ></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-[11px] font-black text-white drop-shadow-md">{communityGiftProgress}%</span>
+                  <span className="text-[8px] font-bold text-white/70 uppercase">Reto</span>
+                </div>
+              </div>
+            ) : communityGiftStatus === 'failed' ? (
+              <motion.div
+                initial={{ scale: 1, rotate: 0 }}
+                animate={{ scale: [1, 1.1, 1], rotate: [0, -15, 15, -15, 0], opacity: [1, 1, 0.5] }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+                className="w-14 h-14 bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center border-2 border-gray-600 grayscale cursor-pointer hover:scale-105"
+                onClick={(e) => { e.stopPropagation(); onOpenCommunityGift(); }}
+              >
+                <div className="text-3xl drop-shadow-lg opacity-50">🎁</div>
+                <div className="absolute -top-3 -right-3 bg-gray-600 text-[9px] text-white font-black px-2 py-0.5 rounded-full shadow-md border border-gray-400">
+                  FALLÓ
+                </div>
+              </motion.div>
+            ) : communityGiftStatus === 'success' ? (
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: [1, 1.2, 1], opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="w-14 h-14 bg-gradient-to-tr from-yellow-300 to-yellow-500 rounded-2xl shadow-[0_0_30px_rgba(250,204,21,1)] flex items-center justify-center border-2 border-white cursor-pointer hover:scale-105"
+                onClick={(e) => { e.stopPropagation(); onOpenCommunityGift(); }}
+              >
+                <div className="text-3xl drop-shadow-lg animate-bounce">🏆</div>
+                <div className="absolute -top-3 -right-3 bg-yellow-600 text-[9px] text-white font-black px-2 py-0.5 rounded-full shadow-md border border-white">
+                  ÉXITO
+                </div>
+              </motion.div>
+            ) : (communityGiftStatus === 'unlocked' || communityGiftStatus === 'voting' || communityGiftStatus === 'funding') ? (
+              <motion.button
+                onClick={(e) => { e.stopPropagation(); onOpenCommunityGift(); }}
+                animate={{ scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="w-14 h-14 bg-gradient-to-tr from-yellow-400 to-orange-500 rounded-2xl shadow-[0_0_20px_rgba(250,204,21,0.6)] flex items-center justify-center border-2 border-yellow-200 cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <div className="text-3xl drop-shadow-lg">🎁</div>
+                <div className="absolute -top-3 -right-3 bg-red-600 text-[9px] text-white font-black px-2 py-0.5 rounded-full shadow-md border border-white/20 animate-pulse">
+                  ACTIVO
+                </div>
+              </motion.button>
+            ) : null}
+          </div>
+
           <AnimatePresence>
             {isSnipeTime && isBattleActive && (
               <motion.div

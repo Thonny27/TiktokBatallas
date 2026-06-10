@@ -10,6 +10,7 @@ import HostPanel from './components/Dashboards/HostPanel';
 import MvpPanel from './components/Dashboards/MvpPanel';
 import GiftCatalogModal from './components/Modals/GiftCatalogModal';
 import YapeModal from './components/Modals/YapeModal';
+import CommunityGiftModal from './components/Modals/CommunityGiftModal';
 
 export default function App() {
   // ==========================================
@@ -27,6 +28,23 @@ export default function App() {
   const [score2, setScore2] = useState(8900);
   const [balance, setBalance] = useState(500000); // Monedas ilimitadas para pruebas
   const [totalGiftsSent, setTotalGiftsSent] = useState(0); // Seguimiento de regalos enviados
+
+  // Community Gift State
+  const [communityGiftsCount, setCommunityGiftsCount] = useState(0);
+  const [communityPoints, setCommunityPoints] = useState(0);
+  const [communityTaps, setCommunityTaps] = useState(0);
+  const [communityComments, setCommunityComments] = useState(0);
+
+  const [communityGiftStatus, setCommunityGiftStatus] = useState('locked'); // 'locked', 'unlocked', 'voting', 'funding', 'success', 'failed'
+  const [isCommunityGiftModalOpen, setIsCommunityGiftModalOpen] = useState(false);
+  const [communityFundingPool, setCommunityFundingPool] = useState(0);
+
+  const communityGiftProgress = Math.floor(
+    (Math.min(communityGiftsCount, 10) / 10) * 25 +
+    (Math.min(communityPoints, 1000) / 1000) * 25 +
+    (Math.min(communityTaps, 10) / 10) * 25 +
+    (Math.min(communityComments, 1) / 1) * 25
+  );
 
   // UI States
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
@@ -65,6 +83,8 @@ export default function App() {
       // Simulador orgánico de puntos
       setScore1(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
       setScore2(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
+      
+      // We need another way to unlock it when progress reaches 100. Let's do it in a separate useEffect.
 
       // Simulador orgánico de chat
       if (Math.random() > 0.8) {
@@ -88,6 +108,23 @@ export default function App() {
     return () => clearInterval(timer);
   }, [userRole, activeTab]);
 
+  // Unlock community gift
+  useEffect(() => {
+    if (communityGiftProgress >= 100 && communityGiftStatus === 'locked') {
+      setCommunityGiftStatus('unlocked');
+    }
+  }, [communityGiftProgress, communityGiftStatus]);
+
+  // Auto-reset community gift after failure or success
+  useEffect(() => {
+    if ((communityGiftStatus === 'failed' || communityGiftStatus === 'success') && !isCommunityGiftModalOpen) {
+      const t = setTimeout(() => {
+        setCommunityGiftStatus('ended');
+      }, 4000); // 4 seconds of displaying the result before hiding
+      return () => clearTimeout(t);
+    }
+  }, [communityGiftStatus, isCommunityGiftModalOpen]);
+
   // Handlers
   const handleScreenTap = (e) => {
     if (activeTab !== 'arena' || isGiftModalOpen || isYapeModalOpen) return;
@@ -104,6 +141,11 @@ export default function App() {
       setTapCombo(0);
     }, 2000); // Reset combo after 2 seconds of inactivity
 
+    // Añadir al progreso del regalo comunitario
+    if (communityGiftStatus === 'locked') {
+      setCommunityTaps(prev => Math.min(10, prev + 1));
+    }
+
     setTimeout(() => {
       setHearts(prev => prev.filter(h => h.id !== newHeart.id));
     }, 1000);
@@ -111,6 +153,10 @@ export default function App() {
 
   const handleSendMessage = (text) => {
     const artifact = userRole === 'mvp' ? getArtifactForPoints(totalGiftsSent) : null;
+    if (communityGiftStatus === 'locked') {
+      setCommunityComments(prev => Math.min(1, prev + 1));
+    }
+
     setChatMessages(prev => [...prev, {
       id: Date.now(),
       user: 'Tú',
@@ -131,7 +177,11 @@ export default function App() {
     }
     setBalance(prev => prev - gift.price);
     setTotalGiftsSent(prev => prev + gift.price);
-    setIsGiftModalOpen(false);
+
+    if (communityGiftStatus === 'locked') {
+      setCommunityGiftsCount(prev => Math.min(10, prev + 1));
+      setCommunityPoints(prev => Math.min(1000, prev + gift.price));
+    }
 
     if (gift.id === 'caballero') {
       setIsGiantGiftActive(gift);
@@ -202,6 +252,9 @@ export default function App() {
                   onScreenTap={handleScreenTap}
                   onAddScore={handleAddScore}
                   onSendMessage={handleSendMessage}
+                  communityGiftProgress={communityGiftProgress}
+                  communityGiftStatus={communityGiftStatus}
+                  onOpenCommunityGift={() => setIsCommunityGiftModalOpen(true)}
                 />
               ) : (
                 renderDashboard()
@@ -239,6 +292,27 @@ export default function App() {
           onSendGift={handleSendGift}
           onOpenYape={() => setIsYapeModalOpen(true)}
           balance={balance}
+          totalGiftsSent={totalGiftsSent}
+        />
+        <CommunityGiftModal
+          isOpen={isCommunityGiftModalOpen}
+          onClose={() => setIsCommunityGiftModalOpen(false)}
+          status={communityGiftStatus}
+          setStatus={setCommunityGiftStatus}
+          fundingPool={communityFundingPool}
+          setFundingPool={setCommunityFundingPool}
+          balance={balance}
+          setBalance={setBalance}
+          communityTasks={{
+            gifts: communityGiftsCount,
+            points: communityPoints,
+            taps: communityTaps,
+            comments: communityComments
+          }}
+          onSendGiantGift={(gift) => {
+            setIsGiantGiftActive(gift);
+            setTimeout(() => setIsGiantGiftActive(null), 8500);
+          }}
         />
 
       </div>

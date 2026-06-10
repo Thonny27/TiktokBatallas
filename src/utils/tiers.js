@@ -16,7 +16,7 @@ export const TIERS = [
   { id: 8, label: 'VIII', range: '20K+ pts', unlockPoints: 20000, name: 'Corona de Diamante', icon: '💎', image: '/images/tiers/tier8.png', colors: 'from-cyan-300 to-blue-500', border: 'border-cyan-400/50',
     benefits: ['Fijado en Pantalla Principal (Top)', 'Prioridad para Jugar en vivo'] },
   { id: 9, label: 'IX', range: '30K+ pts', unlockPoints: 30000, name: 'Trono de Leyenda', icon: '👑', image: '/images/tiers/tier9.png', colors: 'from-fuchsia-500 to-rose-600', border: 'border-fuchsia-500/50',
-    benefits: ['Retrato en el Salón de Honor', 'Entrada Épica Pantalla Completa', 'Experiencia 1a1 Privada (Mensual)'] },
+    benefits: ['Regalo Exclusivo: CABALLERO CELESTIAL', 'Retrato en el Salón de Honor', 'Entrada Épica Pantalla Completa', 'Experiencia 1a1 Privada'] },
 ];
 
 export const getCurrentTierIndex = (points) => {
