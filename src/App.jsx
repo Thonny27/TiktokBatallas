@@ -24,8 +24,11 @@ export default function App() {
   // ==========================================
   const [battlePhase, setBattlePhase] = useState('active'); // 'active', 'results', 'solo'
   const [timeLeft, setTimeLeft] = useState(240); // 30 segundos para probar
-  const [score1, setScore1] = useState(12400);
-  const [score2, setScore2] = useState(8900);
+  const [score1, setScore1] = useState(0);
+  const [score2, setScore2] = useState(0);
+  const [score3, setScore3] = useState(0);
+  const [score4, setScore4] = useState(0);
+  const [battleType, setBattleType] = useState(2); // 2, 3, or 4 hosts
   const [balance, setBalance] = useState(500000); // Monedas ilimitadas para pruebas
   const [totalGiftsSent, setTotalGiftsSent] = useState(0); // Seguimiento de regalos enviados
 
@@ -83,8 +86,8 @@ export default function App() {
       // Simulador orgánico de puntos
       setScore1(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
       setScore2(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
-      
-      // We need another way to unlock it when progress reaches 100. Let's do it in a separate useEffect.
+      if (battleType >= 3) setScore3(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
+      if (battleType >= 4) setScore4(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
 
       // Simulador orgánico de chat
       if (Math.random() > 0.8) {
@@ -106,7 +109,7 @@ export default function App() {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [userRole, activeTab]);
+  }, [userRole, activeTab, battlePhase, battleType]);
 
   // Unlock community gift
   useEffect(() => {
@@ -201,7 +204,11 @@ export default function App() {
   // RENDERIZADO
   // ==========================================
   if (!userRole) {
-    return <RoleSelector onSelectRole={(role) => { setUserRole(role); setActiveTab('arena'); }} />;
+    return <RoleSelector
+      onSelectRole={(role) => { setUserRole(role); setActiveTab('arena'); }}
+      battleType={battleType}
+      onSelectBattleType={setBattleType}
+    />;
   }
 
   const renderDashboard = () => {
@@ -242,6 +249,9 @@ export default function App() {
                   isBattleActive={battlePhase === 'active' || battlePhase === 'results'}
                   score1={score1}
                   score2={score2}
+                  score3={score3}
+                  score4={score4}
+                  battleType={battleType}
                   hearts={hearts}
                   smallGifts={smallGifts}
                   isGiantGiftActive={isGiantGiftActive}

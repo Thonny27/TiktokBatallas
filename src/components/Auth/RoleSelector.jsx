@@ -2,7 +2,7 @@ import React from 'react';
 import { Star, Flame, ShieldAlert, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function RoleSelector({ onSelectRole }) {
+export default function RoleSelector({ onSelectRole, battleType, onSelectBattleType }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -51,7 +51,13 @@ export default function RoleSelector({ onSelectRole }) {
           animate="visible"
           className="w-full flex flex-col items-center mt-8"
         >
-          <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] text-center mb-6">Accede a la Arena</p>
+          <div className="flex space-x-3 mb-6 bg-gray-900/50 p-1.5 rounded-full border border-gray-800 backdrop-blur-sm">
+            <button onClick={() => onSelectBattleType(2)} className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all ${battleType === 2 ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.5)]' : 'text-gray-400 hover:text-white'}`}>2 Hosts</button>
+            <button onClick={() => onSelectBattleType(3)} className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all ${battleType === 3 ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.5)]' : 'text-gray-400 hover:text-white'}`}>3 Hosts</button>
+            <button onClick={() => onSelectBattleType(4)} className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all ${battleType === 4 ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(6,182,212,0.5)]' : 'text-gray-400 hover:text-white'}`}>4 Hosts</button>
+          </div>
+
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] text-center mb-4">Accede a la Arena</p>
           
           <motion.button 
             variants={itemVariants}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, Gift, Share2, MoreHorizontal, AlertTriangle, Plus, Send } from 'lucide-react';
 import PKBar from './PKBar';
 import Chat from './Chat';
@@ -15,6 +15,9 @@ export default function ArenaScreen({
   isBattleActive,
   score1,
   score2,
+  score3 = 0,
+  score4 = 0,
+  battleType = 2,
   isGiantGiftActive,
   smallGifts,
   hearts,
@@ -30,6 +33,17 @@ export default function ArenaScreen({
 }) {
   const isSnipeTime = timeLeft <= 60 && timeLeft > 0;
   const [selectedHost, setSelectedHost] = useState(null);
+  const [showBattleStartAnim, setShowBattleStartAnim] = useState(false);
+
+  useEffect(() => {
+    if (isBattleActive) {
+      setShowBattleStartAnim(true);
+      const t = setTimeout(() => setShowBattleStartAnim(false), 3000);
+      return () => clearTimeout(t);
+    } else {
+      setShowBattleStartAnim(false);
+    }
+  }, [isBattleActive]);
 
   const mockHost1 = {
     name: 'Anfitrión_Pro',
@@ -101,129 +115,86 @@ export default function ArenaScreen({
         <>
           {/* 2. BARRA PK (Flotando debajo del header - ABSOLUTE) */}
           <div className="absolute top-[65px] left-0 w-full z-40 pointer-events-none">
-            <PKBar score1={score1} score2={score2} timeLeft={timeLeft} />
+            <PKBar score1={score1} score2={score2} score3={score3} score4={score4} battleType={battleType} timeLeft={timeLeft} />
           </div>
 
           {/* 3. VIDEOS (Mitad de pantalla en PK Mode, espaciados para no tapar header/pkbar) */}
-          <div className="flex w-full h-[65%] shrink-0 pointer-events-none relative z-20 pt-[115px]">
-            <div className="w-1/2 relative bg-gray-900 border-r border-black flex flex-col items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-900/40 to-transparent"></div>
-              <div className="w-48 h-48 rounded-full bg-cyan-500/20 blur-3xl absolute animate-[pulse_4s_ease-in-out_infinite]"></div>
-              <span className="text-cyan-400/50 font-bold text-sm z-10 drop-shadow-lg">VIDEO HOST 1</span>
-
-              {/* Animación de WIN/LOSE Host 1 */}
-              <AnimatePresence>
-                {battlePhase === 'results' && (
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0, rotate: -20 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] z-30"
-                  >
-                    {score1 >= score2 ? (
-                      <div className="flex flex-col items-center relative">
-                        {/* Aura radial dorada */}
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-yellow-500/40 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
-
-                        <motion.div
-                          animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
-                          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                          className="text-7xl drop-shadow-[0_0_30px_rgba(250,204,21,1)] mb-2 relative z-10"
-                        >
-                          👑
-                        </motion.div>
-
-                        <div className="relative z-10 bg-black/40 px-6 py-1 rounded-full border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.4)] backdrop-blur-sm mt-1">
-                          <span className="font-black italic text-4xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
-                            WIN
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center relative opacity-90 grayscale-[40%]">
-                        {/* Aura oscura y fría */}
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-blue-900/30 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
-
-                        <motion.div
-                          animate={{ opacity: [0.6, 1, 0.6], y: [0, 5, 0] }}
-                          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                          className="text-7xl drop-shadow-[0_0_20px_rgba(100,116,139,0.8)] mb-2 relative z-10"
-                        >
-                          🌧️
-                        </motion.div>
-
-                        <div className="relative z-10 bg-black/40 px-5 py-1 rounded-full border border-gray-500/30 shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-sm mt-1">
-                          <span className="font-black italic text-3xl text-gray-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
-                            LOSE
-                          </span>
-                        </div>
+          <div className="flex w-full h-[65%] shrink-0 pointer-events-none relative z-20 pt-[115px] flex-wrap">
+            {(() => {
+              const maxScore = Math.max(score1, score2, battleType >= 3 ? score3 : 0, battleType >= 4 ? score4 : 0);
+              const renderVideoHost = (hostIndex, name, score, colorClass, gradient, pulseColor, containerClass) => {
+                const isWinner = score >= maxScore && maxScore > 0;
+                return (
+                  <div key={hostIndex} className={`relative bg-gray-900 border-black flex flex-col items-center justify-center overflow-hidden ${containerClass}`}>
+                    <div className={`absolute inset-0 bg-gradient-to-tr ${gradient} to-transparent`}></div>
+                    {hostIndex > 1 && name && (
+                      <div className="absolute top-2 right-2 z-20">
+                        <span onClick={(e) => { e.stopPropagation(); setSelectedHost(mockHost2); }} className={`bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white font-bold text-[10px] border ${colorClass} shadow-md cursor-pointer pointer-events-auto hover:bg-black/80 transition`}>
+                          {name}
+                        </span>
                       </div>
                     )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            <div className="w-1/2 relative bg-gray-900 border-l border-black flex flex-col items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tl from-pink-900/40 to-transparent"></div>
-              <div className="absolute top-2 right-2 z-20">
-                <span
-                  onClick={(e) => { e.stopPropagation(); setSelectedHost(mockHost2); }}
-                  className="bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white font-bold text-[10px] border border-pink-500/30 shadow-md cursor-pointer pointer-events-auto hover:bg-black/80 transition"
-                >Host_Rival99</span>
-              </div>
-              <div className="w-48 h-48 rounded-full bg-pink-500/20 blur-3xl absolute animate-[pulse_3s_ease-in-out_infinite]"></div>
-              <span className="text-pink-400/50 font-bold text-sm z-10 drop-shadow-lg">VIDEO HOST 2</span>
-
-              {/* Animación de WIN/LOSE Host 2 */}
-              <AnimatePresence>
-                {battlePhase === 'results' && (
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0, rotate: 20 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] z-30"
-                  >
-                    {score2 > score1 ? (
-                      <div className="flex flex-col items-center relative">
-                        {/* Aura radial dorada */}
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-yellow-500/40 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
-
-                        <motion.div
-                          animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }}
-                          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                          className="text-7xl drop-shadow-[0_0_30px_rgba(250,204,21,1)] mb-2 relative z-10"
-                        >
-                          👑
+                    <div className={`w-32 h-32 md:w-48 md:h-48 rounded-full ${pulseColor} blur-3xl absolute animate-[pulse_4s_ease-in-out_infinite]`}></div>
+                    <span className={`text-white/50 font-bold text-xs md:text-sm z-10 drop-shadow-lg`}>VIDEO HOST {hostIndex}</span>
+                    <AnimatePresence>
+                      {battlePhase === 'results' && (
+                        <motion.div initial={{ scale: 0, opacity: 0, rotate: hostIndex % 2 === 0 ? 20 : -20 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] z-30">
+                          {isWinner ? (
+                            <div className="flex flex-col items-center relative scale-75 md:scale-100">
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-40 md:h-40 bg-yellow-500/40 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
+                              <motion.div animate={{ y: [0, -15, 0], scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="text-5xl md:text-7xl drop-shadow-[0_0_30px_rgba(250,204,21,1)] mb-2 relative z-10">👑</motion.div>
+                              <div className="relative z-10 bg-black/40 px-4 md:px-6 py-1 rounded-full border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.4)] backdrop-blur-sm mt-1">
+                                <span className="font-black italic text-2xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">WIN</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center relative opacity-90 grayscale-[40%] scale-75 md:scale-100">
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-40 md:h-40 bg-blue-900/30 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
+                              <motion.div animate={{ opacity: [0.6, 1, 0.6], y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }} className="text-5xl md:text-7xl drop-shadow-[0_0_20px_rgba(100,116,139,0.8)] mb-2 relative z-10">🌧️</motion.div>
+                              <div className="relative z-10 bg-black/40 px-4 md:px-5 py-1 rounded-full border border-gray-500/30 shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-sm mt-1">
+                                <span className="font-black italic text-xl md:text-3xl text-gray-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">LOSE</span>
+                              </div>
+                            </div>
+                          )}
                         </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              };
 
-                        <div className="relative z-10 bg-black/40 px-6 py-1 rounded-full border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.4)] backdrop-blur-sm mt-1">
-                          <span className="font-black italic text-4xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-yellow-400 to-yellow-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
-                            WIN
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center relative opacity-90 grayscale-[40%]">
-                        {/* Aura oscura y fría */}
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-blue-900/30 blur-[40px] rounded-full animate-pulse z-0 pointer-events-none"></div>
-
-                        <motion.div
-                          animate={{ opacity: [0.6, 1, 0.6], y: [0, 5, 0] }}
-                          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                          className="text-7xl drop-shadow-[0_0_20px_rgba(100,116,139,0.8)] mb-2 relative z-10"
-                        >
-                          🌧️
-                        </motion.div>
-
-                        <div className="relative z-10 bg-black/40 px-5 py-1 rounded-full border border-gray-500/30 shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-sm mt-1">
-                          <span className="font-black italic text-3xl text-gray-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">
-                            LOSE
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+              if (battleType === 2) {
+                return (
+                  <>
+                    {renderVideoHost(1, null, score1, '', 'from-cyan-900/40', 'bg-cyan-500/20', 'w-1/2 h-full border-r')}
+                    {renderVideoHost(2, 'Host_Rival99', score2, 'border-pink-500/30', 'from-pink-900/40', 'bg-pink-500/20', 'w-1/2 h-full border-l')}
+                  </>
+                );
+              } else if (battleType === 3) {
+                return (
+                  <>
+                    {renderVideoHost(1, null, score1, '', 'from-cyan-900/40', 'bg-cyan-500/20', 'w-1/2 h-full border-r')}
+                    <div className="w-1/2 h-full flex flex-col border-l border-black pointer-events-auto">
+                      {renderVideoHost(2, 'Host_Rival99', score2, 'border-pink-500/30', 'from-pink-900/40', 'bg-pink-500/20', 'h-1/2 border-b w-full')}
+                      {renderVideoHost(3, 'TercerHost', score3, 'border-orange-500/30', 'from-orange-900/40', 'bg-orange-500/20', 'h-1/2 border-t w-full')}
+                    </div>
+                  </>
+                );
+              } else if (battleType === 4) {
+                return (
+                  <>
+                    <div className="w-1/2 h-full flex flex-col border-r border-black pointer-events-auto">
+                      {renderVideoHost(1, null, score1, '', 'from-cyan-900/40', 'bg-cyan-500/20', 'h-1/2 border-b w-full')}
+                      {renderVideoHost(3, 'Host_Naranja', score3, 'border-orange-500/30', 'from-orange-900/40', 'bg-orange-500/20', 'h-1/2 border-t w-full')}
+                    </div>
+                    <div className="w-1/2 h-full flex flex-col border-l border-black pointer-events-auto">
+                      {renderVideoHost(2, 'Host_Rival99', score2, 'border-pink-500/30', 'from-pink-900/40', 'bg-pink-500/20', 'h-1/2 border-b w-full')}
+                      {renderVideoHost(4, 'Host_Morado', score4, 'border-purple-500/30', 'from-purple-900/40', 'bg-purple-500/20', 'h-1/2 border-t w-full')}
+                    </div>
+                  </>
+                );
+              }
+            })()}
           </div>
         </>
       ) : (
@@ -234,6 +205,67 @@ export default function ArenaScreen({
           <span className="text-white/50 font-bold text-lg z-10 drop-shadow-lg">PANTALLA COMPLETA</span>
         </div>
       )}
+
+      {/* Battle Start Animation Overlay */}
+      <AnimatePresence>
+        {showBattleStartAnim && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-none"
+          >
+            <div className="relative flex items-center justify-center">
+              {/* Escudo central brillando */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: [0, 1.2, 1], opacity: 1 }}
+                transition={{ duration: 0.8, ease: "backOut" }}
+                className="text-9xl drop-shadow-[0_0_50px_rgba(234,179,8,1)] z-10 relative"
+              >
+                🛡️
+              </motion.div>
+
+              {/* Espada Izquierda (Chocando) */}
+              <motion.div
+                initial={{ x: -200, y: -200, rotate: -45, opacity: 0 }}
+                animate={{ x: -20, y: -20, rotate: 45, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.3, type: "spring", stiffness: 300 }}
+                className="text-8xl absolute z-20 drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]"
+              >
+                🗡️
+              </motion.div>
+
+              {/* Espada Derecha (Chocando) */}
+              <motion.div
+                initial={{ x: 200, y: 200, rotate: 135, opacity: 0 }}
+                animate={{ x: 20, y: 20, rotate: 45, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.3, type: "spring", stiffness: 300 }}
+                className="text-8xl absolute z-20 drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] scale-x-[-1]"
+              >
+                🗡️
+              </motion.div>
+
+              {/* Destello de choque */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: [0, 2, 0], opacity: [0, 1, 0] }}
+                transition={{ delay: 0.7, duration: 0.5 }}
+                className="absolute z-30 w-48 h-48 bg-white/80 blur-2xl rounded-full"
+              ></motion.div>
+              
+              <motion.div
+                initial={{ scale: 0, y: 50, opacity: 0 }}
+                animate={{ scale: 1, y: 100, opacity: 1 }}
+                transition={{ delay: 1, duration: 0.5 }}
+                className="absolute z-40 text-4xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-500 to-red-500 drop-shadow-[0_5px_5px_rgba(0,0,0,1)] tracking-widest uppercase"
+              >
+                ¡BATALLA!
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* =========================================
           4. ZONA INFERIOR: CHAT, ANIMACIONES Y BOTONES
