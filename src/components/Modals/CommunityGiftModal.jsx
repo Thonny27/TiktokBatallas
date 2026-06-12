@@ -18,7 +18,8 @@ export default function CommunityGiftModal({
   balance,
   setBalance,
   communityTasks,
-  onSendGiantGift
+  onSendGiantGift,
+  onActionRequest
 }) {
   const [timeLeft, setTimeLeft] = useState(30);
   const [votes, setVotes] = useState({ dragon: 45, castillo: 20, universo: 10 });
@@ -95,8 +96,9 @@ export default function CommunityGiftModal({
     if (status === 'funding' && selectedGift && fundingPool >= selectedGift.price) {
       setStatus('success');
       onSendGiantGift({ ...selectedGift, type: 'premium' }); // Lanza la animación gigante
+      onClose(); // Cerrar modal inmediatamente para disfrutar la animación
     }
-  }, [fundingPool, status, selectedGift]);
+  }, [fundingPool, status, selectedGift, setStatus, onSendGiantGift, onClose]);
 
 
 
@@ -331,7 +333,10 @@ export default function CommunityGiftModal({
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center">
+                    <button 
+                      onClick={() => { if(onActionRequest) onActionRequest('gifts'); onClose(); }}
+                      className="w-full text-left bg-white/5 hover:bg-white/10 active:scale-95 cursor-pointer border border-white/10 rounded-2xl p-4 flex items-center transition-all"
+                    >
                       <div className="text-3xl mr-4">🎁</div>
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
@@ -342,8 +347,12 @@ export default function CommunityGiftModal({
                           <div className="h-full bg-pink-500 rounded-full transition-all duration-300" style={{ width: `${Math.min(100, ((communityTasks?.gifts || 0) / 10) * 100)}%` }}></div>
                         </div>
                       </div>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center">
+                    </button>
+                    
+                    <button 
+                      onClick={() => { if(onActionRequest) onActionRequest('points'); onClose(); }}
+                      className="w-full text-left bg-white/5 hover:bg-white/10 active:scale-95 cursor-pointer border border-white/10 rounded-2xl p-4 flex items-center transition-all"
+                    >
                       <div className="text-3xl mr-4">🔥</div>
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
@@ -354,8 +363,12 @@ export default function CommunityGiftModal({
                           <div className="h-full bg-orange-500 rounded-full transition-all duration-300" style={{ width: `${Math.min(100, ((communityTasks?.points || 0) / 1000) * 100)}%` }}></div>
                         </div>
                       </div>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center">
+                    </button>
+
+                    <button 
+                      onClick={() => { if(onActionRequest) onActionRequest('taps'); onClose(); }}
+                      className="w-full text-left bg-white/5 hover:bg-white/10 active:scale-95 cursor-pointer border border-white/10 rounded-2xl p-4 flex items-center transition-all"
+                    >
                       <div className="text-3xl mr-4">💖</div>
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
@@ -366,8 +379,12 @@ export default function CommunityGiftModal({
                           <div className="h-full bg-pink-400 rounded-full transition-all duration-300" style={{ width: `${Math.min(100, ((communityTasks?.taps || 0) / 10) * 100)}%` }}></div>
                         </div>
                       </div>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center">
+                    </button>
+
+                    <button 
+                      onClick={() => { if(onActionRequest) onActionRequest('comments'); onClose(); }}
+                      className="w-full text-left bg-white/5 hover:bg-white/10 active:scale-95 cursor-pointer border border-white/10 rounded-2xl p-4 flex items-center transition-all"
+                    >
                       <div className="text-3xl mr-4">💬</div>
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
@@ -378,7 +395,7 @@ export default function CommunityGiftModal({
                           <div className="h-full bg-cyan-400 rounded-full transition-all duration-300" style={{ width: `${Math.min(100, ((communityTasks?.comments || 0) / 1) * 100)}%` }}></div>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   </div>
                   <div className="mt-8 text-center text-gray-500 text-xs">
                     El progreso global es un promedio de estas misiones.

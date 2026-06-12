@@ -12,19 +12,20 @@ const LEAGUES = {
 };
 
 export default function HostProfileModal({ isOpen, onClose, host }) {
-  if (!host) return null;
+  // Usar fallback para no crashear durante la animación de salida cuando host es null
+  const safeHost = host || {};
 
   // Mock de datos si no vienen todos en el objeto 'host'
   const profile = {
-    name: host.name || 'Anfitrión_Pro',
-    handle: host.handle || '@anfitrion_oficial',
-    avatar: host.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${host.name || 'Host'}`,
-    followers: host.followers || '12.5K',
-    following: host.following || '360',
-    league: host.league || 'elite',
-    leagueLevel: host.leagueLevel || 3, // Del 5 al 1
-    mvpLevel: host.mvpLevel || 25,
-    communitySize: host.communitySize || 144,
+    name: safeHost.name || 'Anfitrión_Pro',
+    handle: safeHost.handle || '@anfitrion_oficial',
+    avatar: safeHost.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${safeHost.name || 'Host'}`,
+    followers: safeHost.followers || '12.5K',
+    following: safeHost.following || '360',
+    league: safeHost.league || 'elite',
+    leagueLevel: safeHost.leagueLevel || 3, // Del 5 al 1
+    mvpLevel: safeHost.mvpLevel || 25,
+    communitySize: safeHost.communitySize || 144,
   };
 
   const leagueData = LEAGUES[profile.league] || LEAGUES.elite;

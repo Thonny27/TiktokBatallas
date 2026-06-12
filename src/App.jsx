@@ -226,7 +226,7 @@ export default function App() {
   };
 
   return (
-    <div className="bg-black min-h-[100dvh] flex flex-col items-center justify-center font-sans">
+    <div className="bg-black w-full h-[100dvh] flex flex-col items-center justify-center font-sans overflow-hidden">
       <div className="w-full max-w-md h-[100dvh] md:h-[850px] bg-gray-900 relative overflow-hidden md:rounded-3xl shadow-[0_0_50px_rgba(236,72,153,0.15)] md:border-4 border-gray-800 flex flex-col">
 
         {/* Vistas Dinámicas */}
@@ -274,7 +274,7 @@ export default function App() {
         </div>
 
         {/* NAVEGACIÓN INFERIOR (TAB BAR FIXED) */}
-        <div className="shrink-0 h-16 bg-gray-900 border-t border-gray-800 flex justify-around items-center px-4 relative z-50">
+        <div className="shrink-0 h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-gray-900 border-t border-gray-800 flex justify-around items-center px-4 relative z-50">
           <button
             onClick={() => setActiveTab('arena')}
             className={`flex flex-col items-center justify-center w-20 transition-colors ${activeTab === 'arena' ? 'text-pink-500' : 'text-gray-500 hover:text-gray-300'}`}
@@ -322,6 +322,15 @@ export default function App() {
           onSendGiantGift={(gift) => {
             setIsGiantGiftActive(gift);
             setTimeout(() => setIsGiantGiftActive(null), 8500);
+          }}
+          onActionRequest={(action) => {
+            if (action === 'gifts') {
+              setIsGiftModalOpen(true);
+            } else if (action === 'comments') {
+              setTimeout(() => {
+                document.getElementById('chat-input-mobile')?.focus();
+              }, 300);
+            }
           }}
         />
 

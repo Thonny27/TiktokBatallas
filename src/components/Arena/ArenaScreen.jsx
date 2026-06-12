@@ -6,6 +6,9 @@ import GiftOverlay from './GiftOverlay';
 import HostProfileModal from '../Modals/HostProfileModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
+let battleAnimationPlayedForCurrentBattle = false;
+let battleAnimationStartTime = 0;
+
 export default function ArenaScreen({
   userRole,
   onOpenGiftModal,
@@ -37,11 +40,25 @@ export default function ArenaScreen({
 
   useEffect(() => {
     if (isBattleActive) {
-      setShowBattleStartAnim(true);
-      const t = setTimeout(() => setShowBattleStartAnim(false), 3000);
-      return () => clearTimeout(t);
+      const now = Date.now();
+      if (!battleAnimationPlayedForCurrentBattle) {
+        setShowBattleStartAnim(true);
+        battleAnimationPlayedForCurrentBattle = true;
+        battleAnimationStartTime = now;
+        setTimeout(() => setShowBattleStartAnim(false), 2000);
+      } else {
+        // Si la animación se disparó hace menos de 2 segundos (por ejemplo, remount por StrictMode)
+        if (now - battleAnimationStartTime < 2000) {
+          setShowBattleStartAnim(true);
+          setTimeout(() => setShowBattleStartAnim(false), 2000 - (now - battleAnimationStartTime));
+        } else {
+          setShowBattleStartAnim(false);
+        }
+      }
     } else {
       setShowBattleStartAnim(false);
+      battleAnimationPlayedForCurrentBattle = false;
+      battleAnimationStartTime = 0;
     }
   }, [isBattleActive]);
 
@@ -81,7 +98,7 @@ export default function ArenaScreen({
       {/* =========================================
           1. HEADER (Espacio Superior - ABSOLUTE)
           ========================================= */}
-      <div className="absolute top-0 left-0 w-full z-50 flex justify-between items-start px-4 pt-6 pb-2 pointer-events-none">
+      <div className="absolute top-0 left-0 w-full z-50 flex justify-between items-start px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-2 pointer-events-none">
         <div className="flex items-center space-x-2">
           {/* Host Profile Píldora */}
           <div
@@ -102,9 +119,11 @@ export default function ArenaScreen({
         </div>
 
         {/* Espectadores */}
-        <div className="flex items-center bg-black/40 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/10 pointer-events-auto">
-          <Eye size={12} className="text-gray-300 mr-1.5" />
-          <span className="text-white font-bold text-[11px]">1.2K</span>
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center bg-black/40 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/10 pointer-events-auto">
+            <Eye size={12} className="text-gray-300 mr-1.5" />
+            <span className="text-white font-bold text-[11px]">1.2K</span>
+          </div>
         </div>
       </div>
 
@@ -390,7 +409,7 @@ export default function ArenaScreen({
         </div>
 
         {/* BOTONERA TIKTOK CLON EXACTO */}
-        <div className="w-full px-3 flex items-center justify-between pointer-events-auto space-x-2 shrink-0">
+        <div className="w-full px-3 pb-[max(env(safe-area-inset-bottom),0.5rem)] flex items-center justify-between pointer-events-auto space-x-2 shrink-0">
 
           {/* Input de Chat Estilo Píldora Minimalista */}
           <div className="flex-1">
