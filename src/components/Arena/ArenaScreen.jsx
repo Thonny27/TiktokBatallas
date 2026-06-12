@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Gift, Share2, MoreHorizontal, AlertTriangle, Plus, Send } from 'lucide-react';
+import { Eye, Gift, Share2, MoreHorizontal, AlertTriangle, Plus, Send, Target, Backpack } from 'lucide-react';
 import PKBar from './PKBar';
 import Chat from './Chat';
 import GiftOverlay from './GiftOverlay';
@@ -32,7 +32,10 @@ export default function ArenaScreen({
   battlePhase,
   communityGiftProgress = 0,
   communityGiftStatus = 'locked',
-  onOpenCommunityGift
+  onOpenCommunityGift,
+  activePowerups = [],
+  onOpenMissions,
+  onOpenBackpack
 }) {
   const isSnipeTime = timeLeft <= 60 && timeLeft > 0;
   const [selectedHost, setSelectedHost] = useState(null);
@@ -85,6 +88,13 @@ export default function ArenaScreen({
     mvpLevel: 18,
     communitySize: 85
   };
+  let visualScore1 = score1;
+  let visualScore2 = score2;
+  const isSwordActive = activePowerups.some(p => p.type === 'sword');
+  const isShieldActive = activePowerups.some(p => p.type === 'shield');
+  
+  if (isSwordActive) visualScore1 *= 2;
+  if (isShieldActive) visualScore2 = Math.floor(visualScore2 * 0.8);
 
   return (
     <div className="relative flex flex-col h-full bg-black overflow-hidden select-none" onClick={(e) => {
@@ -127,20 +137,42 @@ export default function ArenaScreen({
         </div>
       </div>
 
-      {/* =========================================
-          CONTENIDO DINÁMICO
-          ========================================= */}
+      {/* POWERUPS ACTIVOS (Al estilo TikTok: Icono con temporizador abajo) */}
+      <div className="absolute top-[55px] left-3 z-50 flex flex-row space-x-2 pointer-events-none">
+        <AnimatePresence>
+          {activePowerups.map(p => {
+            const timeLeftSecs = Math.max(0, Math.ceil((p.expiresAt - Date.now()) / 1000));
+            // Formatear a 0:XX
+            const formattedTime = `0:${timeLeftSecs.toString().padStart(2, '0')}`;
+            return (
+              <motion.div 
+                key={p.id}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500/80 to-purple-600/80 backdrop-blur-md border border-white/20 shadow-[0_0_15px_rgba(168,85,247,0.4)] pointer-events-auto"
+              >
+                <span className="text-lg drop-shadow-md animate-pulse">{p.icon}</span>
+                
+                {/* Timer Pill at the bottom */}
+                <div className="absolute -bottom-1.5 bg-black/80 backdrop-blur-md rounded-full px-1.5 py-0.5 border border-white/10 shadow-md">
+                  <span className="text-white text-[8px] font-bold tracking-wider">{formattedTime}</span>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+
       {isBattleActive ? (
         <>
-          {/* 2. BARRA PK (Flotando debajo del header - ABSOLUTE) */}
-          <div className="absolute top-[65px] left-0 w-full z-40 pointer-events-none">
-            <PKBar score1={score1} score2={score2} score3={score3} score4={score4} battleType={battleType} timeLeft={timeLeft} />
+          <div className="absolute top-[75px] left-0 w-full z-40 pointer-events-none">
+            <PKBar score1={visualScore1} score2={visualScore2} score3={score3} score4={score4} battleType={battleType} timeLeft={timeLeft} />
           </div>
 
-          {/* 3. VIDEOS (Mitad de pantalla en PK Mode, espaciados para no tapar header/pkbar) */}
-          <div className="flex w-full h-[65%] shrink-0 pointer-events-none relative z-20 pt-[115px] flex-wrap">
+          <div className="flex w-full h-[65%] shrink-0 pointer-events-none relative z-20 pt-[110px] flex-wrap">
             {(() => {
-              const maxScore = Math.max(score1, score2, battleType >= 3 ? score3 : 0, battleType >= 4 ? score4 : 0);
+              const maxScore = Math.max(visualScore1, visualScore2, battleType >= 3 ? score3 : 0, battleType >= 4 ? score4 : 0);
               const renderVideoHost = (hostIndex, name, score, colorClass, gradient, pulseColor, containerClass) => {
                 const isWinner = score >= maxScore && maxScore > 0;
                 return (
@@ -445,14 +477,17 @@ export default function ArenaScreen({
           {/* Iconos de Acción Derecha */}
           <div className="flex items-center space-x-2.5">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddScore(1); // Suma 1 a la barra directamente
-                onSendMessage("Ha enviado una 🌹");
-              }}
-              className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white border border-white/5 hover:bg-black/60 transition active:scale-95"
+              onClick={(e) => { e.stopPropagation(); onOpenMissions(); }}
+              className="w-9 h-9 rounded-full bg-purple-600/80 backdrop-blur-md flex items-center justify-center text-white border border-purple-400/50 hover:bg-purple-600 transition active:scale-95 shadow-[0_0_10px_rgba(168,85,247,0.4)]"
             >
-              <span className="text-[16px]">🌹</span>
+              <Target size={18} />
+            </button>
+
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenBackpack(); }}
+              className="w-9 h-9 rounded-full bg-blue-600/80 backdrop-blur-md flex items-center justify-center text-white border border-blue-400/50 hover:bg-blue-600 transition active:scale-95 shadow-[0_0_10px_rgba(59,130,246,0.4)] relative"
+            >
+              <Backpack size={18} />
             </button>
 
             <button

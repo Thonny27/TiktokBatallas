@@ -11,6 +11,8 @@ import MvpPanel from './components/Dashboards/MvpPanel';
 import GiftCatalogModal from './components/Modals/GiftCatalogModal';
 import YapeModal from './components/Modals/YapeModal';
 import CommunityGiftModal from './components/Modals/CommunityGiftModal';
+import MissionsModal from './components/Modals/MissionsModal';
+import BackpackModal from './components/Modals/BackpackModal';
 
 export default function App() {
   // ==========================================
@@ -18,6 +20,24 @@ export default function App() {
   // ==========================================
   const [userRole, setUserRole] = useState(null); // 'admin', 'host', 'mvp', null = login
   const [activeTab, setActiveTab] = useState('arena'); // 'arena', 'panel'
+
+  // ==========================================
+  // ESTADO DE MISIONES MVP Y POTENCIADORES
+  // ==========================================
+  const [activeMissions, setActiveMissions] = useState([]);
+  const [inventoryPowerups, setInventoryPowerups] = useState([]);
+  const [activePowerups, setActivePowerups] = useState([]);
+  const [isMissionsModalOpen, setIsMissionsModalOpen] = useState(false);
+  const [isBackpackModalOpen, setIsBackpackModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (activePowerups.length === 0) return;
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setActivePowerups(prev => prev.filter(p => p.expiresAt > now));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activePowerups]);
 
   // ==========================================
   // ESTADO DE LA BATALLA (ARENA)
@@ -41,6 +61,7 @@ export default function App() {
   const [communityGiftStatus, setCommunityGiftStatus] = useState('locked'); // 'locked', 'unlocked', 'voting', 'funding', 'success', 'failed'
   const [isCommunityGiftModalOpen, setIsCommunityGiftModalOpen] = useState(false);
   const [communityFundingPool, setCommunityFundingPool] = useState(0);
+  const [selectedGiftForCommunity, setSelectedGiftForCommunity] = useState(null);
 
   const communityGiftProgress = Math.floor(
     (Math.min(communityGiftsCount, 10) / 10) * 25 +
@@ -257,8 +278,11 @@ export default function App() {
                   isGiantGiftActive={isGiantGiftActive}
                   chatMessages={chatMessages}
                   tapCombo={tapCombo}
+                  activePowerups={activePowerups}
                   onOpenGiftModal={() => setIsGiftModalOpen(true)}
                   onOpenYape={() => setIsYapeModalOpen(true)}
+                  onOpenMissions={() => setIsMissionsModalOpen(true)}
+                  onOpenBackpack={() => setIsBackpackModalOpen(true)}
                   onScreenTap={handleScreenTap}
                   onAddScore={handleAddScore}
                   onSendMessage={handleSendMessage}
@@ -307,6 +331,8 @@ export default function App() {
         <CommunityGiftModal
           isOpen={isCommunityGiftModalOpen}
           onClose={() => setIsCommunityGiftModalOpen(false)}
+          selectedGift={selectedGiftForCommunity}
+          onSelectGift={setSelectedGiftForCommunity}
           status={communityGiftStatus}
           setStatus={setCommunityGiftStatus}
           fundingPool={communityFundingPool}
@@ -325,6 +351,7 @@ export default function App() {
           }}
           onActionRequest={(action) => {
             if (action === 'gifts') {
+              setIsCommunityGiftModalOpen(false);
               setIsGiftModalOpen(true);
             } else if (action === 'comments') {
               setTimeout(() => {
@@ -332,6 +359,22 @@ export default function App() {
               }, 300);
             }
           }}
+        />
+        <MissionsModal 
+          isOpen={isMissionsModalOpen} 
+          onClose={() => setIsMissionsModalOpen(false)}
+          hostId="Anfitrión_Pro"
+          activeMissions={activeMissions}
+          setActiveMissions={setActiveMissions}
+          setInventoryPowerups={setInventoryPowerups}
+          setBalance={setBalance}
+        />
+        <BackpackModal 
+          isOpen={isBackpackModalOpen} 
+          onClose={() => setIsBackpackModalOpen(false)}
+          inventoryPowerups={inventoryPowerups}
+          setInventoryPowerups={setInventoryPowerups}
+          setActivePowerups={setActivePowerups}
         />
 
       </div>
