@@ -11,7 +11,7 @@ const LEAGUES = {
   suprema: { name: 'Suprema', icon: <Crown size={32} className="text-purple-500 drop-shadow-md" />, bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-300' },
 };
 
-export default function HostProfileModal({ isOpen, onClose, host }) {
+export default function HostProfileModal({ isOpen, onClose, host, currentMainHost, onSwitchSide }) {
   // Usar fallback para no crashear durante la animación de salida cuando host es null
   const safeHost = host || {};
 
@@ -131,10 +131,20 @@ export default function HostProfileModal({ isOpen, onClose, host }) {
                 </div>
               </div>
 
-              {/* BOTÓN DE ACCIÓN: SEGUIR */}
-              <button className="w-full bg-[#ff2b55] hover:bg-[#e0264a] text-white font-bold py-3.5 rounded-xl shadow-lg transition-transform active:scale-95 text-lg">
-                + Seguir
-              </button>
+              {/* BOTÓN DE ACCIÓN: SEGUIR O IR AL LIVE */}
+              {currentMainHost && profile.handle !== currentMainHost.handle ? (
+                <button 
+                  onClick={onSwitchSide}
+                  className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3.5 rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-transform active:scale-95 text-lg flex items-center justify-center space-x-2"
+                >
+                  <Swords size={20} />
+                  <span>Ir a su Live (Cambiar de Bando)</span>
+                </button>
+              ) : (
+                <button className="w-full bg-[#ff2b55] hover:bg-[#e0264a] text-white font-bold py-3.5 rounded-xl shadow-lg transition-transform active:scale-95 text-lg">
+                  + Seguir
+                </button>
+              )}
             </div>
           </motion.div>
         </div>

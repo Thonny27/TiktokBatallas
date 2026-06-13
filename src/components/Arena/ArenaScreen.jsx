@@ -4,6 +4,7 @@ import PKBar from './PKBar';
 import Chat from './Chat';
 import GiftOverlay from './GiftOverlay';
 import HostProfileModal from '../Modals/HostProfileModal';
+import ViewersModal from '../Modals/ViewersModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
 let battleAnimationPlayedForCurrentBattle = false;
@@ -35,11 +36,14 @@ export default function ArenaScreen({
   onOpenCommunityGift,
   activePowerups = [],
   onOpenMissions,
-  onOpenBackpack
+  onOpenBackpack,
+  currentSide,
+  setCurrentSide
 }) {
   const isSnipeTime = timeLeft <= 60 && timeLeft > 0;
   const [selectedHost, setSelectedHost] = useState(null);
   const [showBattleStartAnim, setShowBattleStartAnim] = useState(false);
+  const [isViewersModalOpen, setIsViewersModalOpen] = useState(false);
 
   useEffect(() => {
     if (isBattleActive) {
@@ -50,7 +54,6 @@ export default function ArenaScreen({
         battleAnimationStartTime = now;
         setTimeout(() => setShowBattleStartAnim(false), 2000);
       } else {
-        // Si la animación se disparó hace menos de 2 segundos (por ejemplo, remount por StrictMode)
         if (now - battleAnimationStartTime < 2000) {
           setShowBattleStartAnim(true);
           setTimeout(() => setShowBattleStartAnim(false), 2000 - (now - battleAnimationStartTime));
@@ -88,8 +91,12 @@ export default function ArenaScreen({
     mvpLevel: 18,
     communitySize: 85
   };
-  let visualScore1 = score1;
-  let visualScore2 = score2;
+  
+  const activeMainHost = currentSide === 1 ? mockHost1 : mockHost2;
+  const activeRivalHost = currentSide === 1 ? mockHost2 : mockHost1;
+
+  let visualScore1 = currentSide === 1 ? score1 : score2;
+  let visualScore2 = currentSide === 1 ? score2 : score1;
   const isSwordActive = activePowerups.some(p => p.type === 'sword');
   const isShieldActive = activePowerups.some(p => p.type === 'shield');
   
@@ -102,47 +109,42 @@ export default function ArenaScreen({
       if (isBattleActive) onAddScore(1);
     }}>
 
-      {/* CAPA INVISIBLE EXCLUSIVA PARA CAPTURAR TAPS (Evita bloqueos) */}
       <div className="absolute inset-0 z-10 cursor-pointer pointer-events-auto"></div>
 
-      {/* =========================================
-          1. HEADER (Espacio Superior - ABSOLUTE)
-          ========================================= */}
       <div className="absolute top-0 left-0 w-full z-50 flex justify-between items-start px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-2 pointer-events-none">
         <div className="flex items-center space-x-2">
-          {/* Host Profile Píldora */}
           <div
-            onClick={(e) => { e.stopPropagation(); setSelectedHost(mockHost1); }}
+            onClick={(e) => { e.stopPropagation(); setSelectedHost(activeMainHost); }}
             className="flex items-center bg-black/40 backdrop-blur-md rounded-full pr-2 pl-1 py-1 border border-white/10 pointer-events-auto shadow-lg cursor-pointer hover:bg-black/60 transition"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 p-0.5 mr-2">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Host_Pro&style=circle" className="w-full h-full bg-gray-900 rounded-full" alt="host1" />
+            <div className="relative">
+              <img src={activeMainHost.avatar} alt="Host" className="w-9 h-9 rounded-full border-2 border-cyan-400" />
             </div>
-            <div className="flex flex-col mr-3">
-              <span className="text-white font-bold text-[10px] leading-tight">Anfitrión_Pro</span>
-              <span className="text-gray-300 text-[8px]">1.2M Likes</span>
+            <div className="ml-2 flex flex-col justify-center max-w-[100px]">
+              <span className="text-white font-bold text-xs truncate leading-tight">{activeMainHost.name}</span>
+              <span className="text-gray-400 text-[9px] truncate leading-tight">{activeMainHost.followers} Likes</span>
             </div>
-            <button className="bg-pink-600 text-white rounded-full p-1 shadow-md hover:bg-pink-500 transition-colors">
-              <Plus size={12} />
+            <button className="ml-2 bg-pink-500 hover:bg-pink-600 rounded-full w-6 h-6 flex items-center justify-center transition active:scale-95">
+              <Plus size={14} className="text-white" />
             </button>
           </div>
         </div>
 
-        {/* Espectadores */}
         <div className="flex items-center space-x-2">
-          <div className="flex items-center bg-black/40 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/10 pointer-events-auto">
+          <div 
+            onClick={(e) => { e.stopPropagation(); setIsViewersModalOpen(true); }}
+            className="flex items-center bg-black/40 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/10 pointer-events-auto cursor-pointer hover:bg-black/60 transition"
+          >
             <Eye size={12} className="text-gray-300 mr-1.5" />
-            <span className="text-white font-bold text-[11px]">1.2K</span>
+            <span className="text-white font-bold text-[11px]">20</span>
           </div>
         </div>
       </div>
 
-      {/* POWERUPS ACTIVOS (Al estilo TikTok: Icono con temporizador abajo) */}
-      <div className="absolute top-[55px] left-3 z-50 flex flex-row space-x-2 pointer-events-none">
+      <div className="absolute top-[70px] left-3 z-50 flex flex-row space-x-2 pointer-events-none">
         <AnimatePresence>
           {activePowerups.map(p => {
             const timeLeftSecs = Math.max(0, Math.ceil((p.expiresAt - Date.now()) / 1000));
-            // Formatear a 0:XX
             const formattedTime = `0:${timeLeftSecs.toString().padStart(2, '0')}`;
             return (
               <motion.div 
@@ -152,11 +154,10 @@ export default function ArenaScreen({
                 exit={{ scale: 0, opacity: 0 }}
                 className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500/80 to-purple-600/80 backdrop-blur-md border border-white/20 shadow-[0_0_15px_rgba(168,85,247,0.4)] pointer-events-auto"
               >
-                <span className="text-lg drop-shadow-md animate-pulse">{p.icon}</span>
+                <span className="text-lg drop-shadow-md animate-pulse mb-1.5">{p.icon}</span>
                 
-                {/* Timer Pill at the bottom */}
-                <div className="absolute -bottom-1.5 bg-black/80 backdrop-blur-md rounded-full px-1.5 py-0.5 border border-white/10 shadow-md">
-                  <span className="text-white text-[8px] font-bold tracking-wider">{formattedTime}</span>
+                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/80 via-black/40 to-transparent rounded-b-lg flex items-end justify-center pb-[2px]">
+                  <span className="text-white text-[8px] font-bold tracking-wider drop-shadow-md">{formattedTime}</span>
                 </div>
               </motion.div>
             );
@@ -170,7 +171,7 @@ export default function ArenaScreen({
             <PKBar score1={visualScore1} score2={visualScore2} score3={score3} score4={score4} battleType={battleType} timeLeft={timeLeft} />
           </div>
 
-          <div className="flex w-full h-[65%] shrink-0 pointer-events-none relative z-20 pt-[110px] flex-wrap">
+          <div className="flex w-full h-[65%] shrink-0 pointer-events-none relative z-20 pt-[105px] flex-wrap">
             {(() => {
               const maxScore = Math.max(visualScore1, visualScore2, battleType >= 3 ? score3 : 0, battleType >= 4 ? score4 : 0);
               const renderVideoHost = (hostIndex, name, score, colorClass, gradient, pulseColor, containerClass) => {
@@ -180,7 +181,7 @@ export default function ArenaScreen({
                     <div className={`absolute inset-0 bg-gradient-to-tr ${gradient} to-transparent`}></div>
                     {hostIndex > 1 && name && (
                       <div className="absolute top-2 right-2 z-20">
-                        <span onClick={(e) => { e.stopPropagation(); setSelectedHost(mockHost2); }} className={`bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white font-bold text-[10px] border ${colorClass} shadow-md cursor-pointer pointer-events-auto hover:bg-black/80 transition`}>
+                        <span className={`bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-white font-bold text-[10px] border ${colorClass} shadow-md`}>
                           {name}
                         </span>
                       </div>
@@ -217,8 +218,12 @@ export default function ArenaScreen({
               if (battleType === 2) {
                 return (
                   <>
-                    {renderVideoHost(1, null, score1, '', 'from-cyan-900/40', 'bg-cyan-500/20', 'w-1/2 h-full border-r')}
-                    {renderVideoHost(2, 'Host_Rival99', score2, 'border-pink-500/30', 'from-pink-900/40', 'bg-pink-500/20', 'w-1/2 h-full border-l')}
+                    <div className="w-1/2 h-full border-r border-black pointer-events-auto relative">
+                      {renderVideoHost(1, '', visualScore1, 'border-cyan-500/30', 'from-cyan-900/40', 'bg-cyan-500/20', 'h-full w-full')}
+                    </div>
+                    <div className="w-1/2 h-full border-l border-black pointer-events-auto relative cursor-pointer" onClick={(e) => { e.stopPropagation(); setSelectedHost(activeRivalHost); }}>
+                      {renderVideoHost(2, activeRivalHost.name, visualScore2, 'border-pink-500/30', 'from-pink-900/40', 'bg-pink-500/20', 'h-full w-full')}
+                    </div>
                   </>
                 );
               } else if (battleType === 3) {
@@ -510,6 +515,16 @@ export default function ArenaScreen({
         isOpen={!!selectedHost}
         onClose={() => setSelectedHost(null)}
         host={selectedHost}
+        currentMainHost={activeMainHost}
+        onSwitchSide={() => {
+          setCurrentSide(currentSide === 1 ? 2 : 1);
+          setSelectedHost(null);
+        }}
+      />
+
+      <ViewersModal 
+        isOpen={isViewersModalOpen}
+        onClose={() => setIsViewersModalOpen(false)}
       />
     </div>
   );

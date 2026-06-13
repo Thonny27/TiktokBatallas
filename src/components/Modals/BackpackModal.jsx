@@ -73,25 +73,26 @@ export default function BackpackModal({ isOpen, onClose, inventoryPowerups, setI
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   {inventoryPowerups.map((powerup, index) => (
-                    <div key={index} className="bg-slate-800 rounded-2xl p-3 border border-slate-700 shadow-md flex flex-col items-center justify-between relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div key={index} className="bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl p-4 border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.15)] flex flex-col items-center justify-between relative overflow-hidden group">
+                      {/* Glow radial de fondo */}
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent opacity-80"></div>
                       
-                      <div className="absolute top-2 right-2 bg-blue-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-md z-10">
+                      <div className="absolute top-2 right-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow-lg z-10 border border-white/20">
                         x{powerup.amount}
                       </div>
 
-                      <div className="text-4xl mb-2 drop-shadow-md z-10 mt-2">
+                      <div className="text-5xl mb-3 drop-shadow-[0_0_20px_rgba(168,85,247,0.5)] z-10 mt-3 transform group-hover:scale-110 transition-transform">
                         {powerup.icon}
                       </div>
                       
-                      <h3 className="text-white font-bold text-sm text-center z-10">{powerup.name}</h3>
+                      <h3 className="text-indigo-100 font-black text-sm text-center z-10 uppercase tracking-wide">{powerup.name}</h3>
                       
                       <button 
                         onClick={() => handleLaunchPowerup(powerup)}
-                        className="mt-3 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 rounded-xl transition-colors text-xs flex items-center justify-center z-10"
+                        className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black py-2 rounded-xl transition-all shadow-lg active:scale-95 text-xs flex items-center justify-center z-10 uppercase tracking-wider border border-white/10"
                       >
-                        <Play size={12} className="mr-1 fill-current" />
-                        Lanzar
+                        <Zap size={14} className="mr-1.5 text-yellow-300" fill="currentColor" />
+                        Usar
                       </button>
                     </div>
                   ))}

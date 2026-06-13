@@ -62,6 +62,9 @@ export default function App() {
   const [isCommunityGiftModalOpen, setIsCommunityGiftModalOpen] = useState(false);
   const [communityFundingPool, setCommunityFundingPool] = useState(0);
   const [selectedGiftForCommunity, setSelectedGiftForCommunity] = useState(null);
+  
+  // Side state (1 = Host 1, 2 = Host 2)
+  const [currentSide, setCurrentSide] = useState(1);
 
   const communityGiftProgress = Math.floor(
     (Math.min(communityGiftsCount, 10) / 10) * 25 +
@@ -78,10 +81,15 @@ export default function App() {
   const [isGiantGiftActive, setIsGiantGiftActive] = useState(null);
 
   // Chat State
-  const [chatMessages, setChatMessages] = useState([
-    { id: 1, user: 'Sistema', text: '¡Bienvenidos a la Batalla Oficial TEGANO!', type: 'system' },
+  const [chatMessages1, setChatMessages1] = useState([
+    { id: 1, user: 'Sistema', text: '¡Bienvenidos al Live de Anfitrión_Pro!', type: 'system' },
     { id: 2, user: 'Maria_99', text: '¡Vamos con todo host1!', type: 'normal' },
     { id: 3, user: 'El_Patron_Lima', text: 'Tiren regalos ahora, preparen el x2 🔥', type: 'vip' }
+  ]);
+
+  const [chatMessages2, setChatMessages2] = useState([
+    { id: 4, user: 'Sistema', text: '¡Bienvenidos al Live de Host_Rival99!', type: 'system' },
+    { id: 5, user: 'LeoFan', text: '¡A ganar este PK, no nos dejemos!', type: 'normal' }
   ]);
 
   // Tap Combo State
@@ -110,22 +118,41 @@ export default function App() {
       if (battleType >= 3) setScore3(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
       if (battleType >= 4) setScore4(s => s + (Math.random() > 0.6 ? Math.floor(Math.random() * 50) : 0));
 
-      // Simulador orgánico de chat
+      // Simulador orgánico de chat para Host 1
       if (Math.random() > 0.8) {
         const fakeUsers = ['JuanP', 'AnaBanana', 'King23', 'Sonia_L', 'User_8819'];
         const fakeMsgs = ['¡Vamos!', 'Toca la pantalla', '🚀🚀🚀', 'Cuidado que nos ganan', 'x2 activo pronto'];
         const isVip = Math.random() > 0.7;
-        const fakeArtifact = isVip ? TIERS[Math.floor(Math.random() * (TIERS.length - 3))] : null; // Rangos variados para los bots
+        const fakeArtifact = isVip ? TIERS[Math.floor(Math.random() * (TIERS.length - 3))] : null;
 
-        setChatMessages(prev => {
+        setChatMessages1(prev => {
           const newMsgs = [...prev, {
-            id: Date.now(),
+            id: Date.now() + Math.random(),
             user: fakeUsers[Math.floor(Math.random() * fakeUsers.length)],
             text: fakeMsgs[Math.floor(Math.random() * fakeMsgs.length)],
             type: isVip ? 'vip' : 'normal',
             artifact: fakeArtifact
           }];
-          return newMsgs.slice(-50); // Mantener un historial de 50 para poder scrollear
+          return newMsgs.slice(-50);
+        });
+      }
+
+      // Simulador orgánico de chat para Host 2
+      if (Math.random() > 0.8) {
+        const fakeUsersRival = ['TeamRival', 'AlexG', 'Sofia_K', 'RivalFan1', 'User_9921'];
+        const fakeMsgsRival = ['Defendamos', 'Dale tap', '🛡️🛡️🛡️', 'Vamos equipo', 'Preparen guantes'];
+        const isVip = Math.random() > 0.7;
+        const fakeArtifact = isVip ? TIERS[Math.floor(Math.random() * (TIERS.length - 3))] : null;
+
+        setChatMessages2(prev => {
+          const newMsgs = [...prev, {
+            id: Date.now() + Math.random(),
+            user: fakeUsersRival[Math.floor(Math.random() * fakeUsersRival.length)],
+            text: fakeMsgsRival[Math.floor(Math.random() * fakeMsgsRival.length)],
+            type: isVip ? 'vip' : 'normal',
+            artifact: fakeArtifact
+          }];
+          return newMsgs.slice(-50);
         });
       }
     }, 1000);
@@ -181,8 +208,9 @@ export default function App() {
       setCommunityComments(prev => Math.min(1, prev + 1));
     }
 
-    setChatMessages(prev => [...prev, {
-      id: Date.now(),
+    const setMessages = currentSide === 1 ? setChatMessages1 : setChatMessages2;
+    setMessages(prev => [...prev, {
+      id: Date.now() + Math.random(),
       user: 'Tú',
       text,
       type: userRole === 'mvp' ? 'vip' : 'normal',
@@ -190,8 +218,9 @@ export default function App() {
     }].slice(-50));
   };
 
-  const handleAddScore = (amount) => {
-    setScore1(prev => prev + amount);
+  const handleAddScore = (amount, side = currentSide) => {
+    if (side === 1) setScore1(prev => prev + amount);
+    else setScore2(prev => prev + amount);
   };
 
   const handleSendGift = (gift) => {
@@ -218,7 +247,9 @@ export default function App() {
       setSmallGifts(prev => [...prev, newSmallGift]);
       setTimeout(() => setSmallGifts(prev => prev.filter(g => g.id !== newSmallGift.id)), 3000);
     }
-    setScore1(prev => prev + gift.price);
+    
+    if (currentSide === 1) setScore1(prev => prev + gift.price);
+    else setScore2(prev => prev + gift.price);
   };
 
   // ==========================================
@@ -276,7 +307,7 @@ export default function App() {
                   hearts={hearts}
                   smallGifts={smallGifts}
                   isGiantGiftActive={isGiantGiftActive}
-                  chatMessages={chatMessages}
+                  chatMessages={currentSide === 1 ? chatMessages1 : chatMessages2}
                   tapCombo={tapCombo}
                   activePowerups={activePowerups}
                   onOpenGiftModal={() => setIsGiftModalOpen(true)}
@@ -285,6 +316,8 @@ export default function App() {
                   onOpenBackpack={() => setIsBackpackModalOpen(true)}
                   onScreenTap={handleScreenTap}
                   onAddScore={handleAddScore}
+                  currentSide={currentSide}
+                  setCurrentSide={setCurrentSide}
                   onSendMessage={handleSendMessage}
                   communityGiftProgress={communityGiftProgress}
                   communityGiftStatus={communityGiftStatus}
@@ -363,7 +396,7 @@ export default function App() {
         <MissionsModal 
           isOpen={isMissionsModalOpen} 
           onClose={() => setIsMissionsModalOpen(false)}
-          hostId="Anfitrión_Pro"
+          hostId={currentSide === 1 ? "Anfitrión_Pro" : "Host_Rival99"}
           activeMissions={activeMissions}
           setActiveMissions={setActiveMissions}
           setInventoryPowerups={setInventoryPowerups}
@@ -372,7 +405,7 @@ export default function App() {
         <BackpackModal 
           isOpen={isBackpackModalOpen} 
           onClose={() => setIsBackpackModalOpen(false)}
-          inventoryPowerups={inventoryPowerups}
+          inventoryPowerups={inventoryPowerups.filter(p => p.hostId === (currentSide === 1 ? "Anfitrión_Pro" : "Host_Rival99"))}
           setInventoryPowerups={setInventoryPowerups}
           setActivePowerups={setActivePowerups}
         />

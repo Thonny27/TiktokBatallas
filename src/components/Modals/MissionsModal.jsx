@@ -9,6 +9,7 @@ const MISSIONS_CATALOG = [
     description: 'Sé el MVP en 3 batallas consecutivas.',
     rewardCoins: 5000,
     powerup: { type: 'sword', name: 'Espada x2', icon: '⚔️', effect: 'Multiplica tu puntaje visual x2 por 20s.' },
+    target: 3,
   },
   {
     id: 2,
@@ -16,6 +17,7 @@ const MISSIONS_CATALOG = [
     description: 'Participa en 10 batallas de este anfitrión en 3 días.',
     rewardCoins: 8000,
     powerup: { type: 'shield', name: 'Escudo -20%', icon: '🛡️', effect: 'Reduce el puntaje rival un 20% visualmente.' },
+    target: 10,
   },
   {
     id: 3,
@@ -23,6 +25,7 @@ const MISSIONS_CATALOG = [
     description: 'Logra que el anfitrión gane 5 batallas en una semana.',
     rewardCoins: 10000,
     powerup: { type: 'banner', name: 'Estandarte +10s', icon: '🚩', effect: 'Añade 10 segundos extra al reloj.' },
+    target: 5,
   },
   {
     id: 4,
@@ -30,6 +33,7 @@ const MISSIONS_CATALOG = [
     description: 'Envía un regalo León o superior.',
     rewardCoins: 15000,
     powerup: { type: 'orb', name: 'Orbe +10%', icon: '🔮', effect: 'Aumenta un 10% el puntaje total del equipo.' },
+    target: 1,
   }
 ];
 
@@ -42,23 +46,30 @@ export default function MissionsModal({ isOpen, onClose, hostId, activeMissions,
     setActiveMissions(prev => [...prev, newMission]);
   };
 
-  const handleSimulateComplete = (mission) => {
-    // 1. Quitar de misiones activas
-    setActiveMissions(prev => prev.filter(m => !(m.id === mission.id && m.hostId === hostId)));
-    
-    // 2. Dar recompensas
-    setBalance(prev => prev + mission.rewardCoins);
-    
-    // 3. Añadir power-up a la mochila
-    setInventoryPowerups(prev => {
-      const existing = prev.find(p => p.type === mission.powerup.type && p.hostId === hostId);
-      if (existing) {
-        return prev.map(p => p === existing ? { ...p, amount: p.amount + 1 } : p);
-      }
-      return [...prev, { ...mission.powerup, hostId, amount: 1 }];
-    });
+  const handleSimulateComplete = (mission, currentProgress) => {
+    if (currentProgress + 1 >= mission.target) {
+      // 1. Quitar de misiones activas
+      setActiveMissions(prev => prev.filter(m => !(m.id === mission.id && m.hostId === hostId)));
+      
+      // 2. Dar recompensas
+      setBalance(prev => prev + mission.rewardCoins);
+      
+      // 3. Añadir power-up a la mochila
+      setInventoryPowerups(prev => {
+        const existing = prev.find(p => p.type === mission.powerup.type && p.hostId === hostId);
+        if (existing) {
+          return prev.map(p => p === existing ? { ...p, amount: p.amount + 1 } : p);
+        }
+        return [...prev, { ...mission.powerup, hostId, amount: 1 }];
+      });
 
-    alert(`¡Misión Completada!\nGanaste ${mission.rewardCoins} monedas y un potenciador: ${mission.powerup.name}`);
+      alert(`¡Misión Completada!\nGanaste ${mission.rewardCoins} monedas y un potenciador: ${mission.powerup.name}`);
+    } else {
+      // Solo avanzar progreso
+      setActiveMissions(prev => prev.map(m => 
+        (m.id === mission.id && m.hostId === hostId) ? { ...m, progress: m.progress + 1 } : m
+      ));
+    }
   };
 
   return (
@@ -100,7 +111,8 @@ export default function MissionsModal({ isOpen, onClose, hostId, activeMissions,
 
               <div className="space-y-4">
                 {MISSIONS_CATALOG.map(mission => {
-                  const isActive = activeMissions.some(m => m.id === mission.id && m.hostId === hostId);
+                  const activeMissionData = activeMissions.find(m => m.id === mission.id && m.hostId === hostId);
+                  const isActive = !!activeMissionData;
 
                   return (
                     <div key={mission.id} className="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-md relative overflow-hidden">
@@ -126,6 +138,22 @@ export default function MissionsModal({ isOpen, onClose, hostId, activeMissions,
                           </div>
                         </div>
 
+                        {isActive && (
+                          <div className="mb-4">
+                            <div className="flex justify-between text-xs text-slate-300 mb-1">
+                              <span>Progreso</span>
+                              <span className="font-bold text-white">{activeMissionData.progress} / {mission.target}</span>
+                            </div>
+                            <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
+                              <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(activeMissionData.progress / mission.target) * 100}%` }}
+                                className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                              />
+                            </div>
+                          </div>
+                        )}
+
                         <div className="flex space-x-2">
                           {!isActive ? (
                             <button 
@@ -136,11 +164,11 @@ export default function MissionsModal({ isOpen, onClose, hostId, activeMissions,
                             </button>
                           ) : (
                             <button 
-                              onClick={() => handleSimulateComplete(mission)}
+                              onClick={() => handleSimulateComplete(mission, activeMissionData.progress)}
                               className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 rounded-xl transition-colors text-sm shadow-[0_0_15px_rgba(34,197,94,0.4)] flex items-center justify-center"
                             >
                               <CheckCircle size={16} className="mr-2" />
-                              Simular Completar
+                              {activeMissionData.progress + 1 >= mission.target ? 'Completar Misión' : 'Avanzar Progreso (+1)'}
                             </button>
                           )}
                         </div>
